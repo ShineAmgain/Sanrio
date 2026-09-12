@@ -26,7 +26,9 @@ export default function Navbar() {
   function handleSearchSubmit(e) {
     e.preventDefault();
     const q = query.trim();
+
     if (!q) return;
+
     navigate(`/search?q=${encodeURIComponent(q)}`);
     closeMenu();
   }
@@ -35,9 +37,16 @@ export default function Navbar() {
     <header className="navbar">
       <div className="navbar-row">
         <Link to="/" className="navbar-brand" onClick={closeMenu}>
-          <img src={logoIcon} alt="" className="brand-swirl" aria-hidden="true" />
+          <img
+            src={logoIcon}
+            alt=""
+            className="brand-swirl"
+            aria-hidden="true"
+          />
+
           <span className="brand-text">
-            Research &amp;<br />Development
+            Research &amp;<br />
+            Development
           </span>
         </Link>
 
@@ -61,12 +70,14 @@ export default function Navbar() {
         <NavLink to="/" end className={navLinkClass} onClick={closeMenu}>
           Home
         </NavLink>
+
         <NavLink to="/about" className={navLinkClass} onClick={closeMenu}>
           About R&amp;D
         </NavLink>
 
         <details className="navbar-dropdown">
           <summary className="navbar-link">Research</summary>
+
           <div className="dropdown-panel">
             {RESEARCH_DROPDOWN.map((item) => (
               <Link
@@ -81,26 +92,99 @@ export default function Navbar() {
           </div>
         </details>
 
-        <NavLink to="/researchers" className={navLinkClass} onClick={closeMenu}>
+        <NavLink
+          to="/researchers"
+          className={navLinkClass}
+          onClick={closeMenu}
+        >
           People
         </NavLink>
+
         <NavLink to="/projects" className={navLinkClass} onClick={closeMenu}>
           Projects
         </NavLink>
-        <NavLink to="/publications" className={navLinkClass} onClick={closeMenu}>
+
+        <NavLink
+          to="/publications"
+          className={navLinkClass}
+          onClick={closeMenu}
+        >
           Publications
         </NavLink>
+
         <NavLink to="/events" className={navLinkClass} onClick={closeMenu}>
           Events
         </NavLink>
-        <NavLink to="/opportunities" className={navLinkClass} onClick={closeMenu}>
+
+        <NavLink
+          to="/opportunities"
+          className={navLinkClass}
+          onClick={closeMenu}
+        >
           Grants
         </NavLink>
+
         <NavLink to="/ijmr" className={navLinkClass} onClick={closeMenu}>
           IJMR
         </NavLink>
 
-        <form className="navbar-search" onSubmit={handleSearchSubmit} role="search">
+        {/* Announcements */}
+        <div className="navbar-notification-wrapper">
+  <Link
+    to="/announcements"
+    className="navbar-notification"
+    onClick={closeMenu}
+    aria-label="Announcements"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      width="19"
+      height="19"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+      <path d="M10 21h4" />
+    </svg>
+
+    <span className="notification-dot" />
+  </Link>
+
+  <div className="announcement-preview">
+    <div className="announcement-preview-header">
+      <span>Announcements</span>
+      <span className="announcement-new">3 new</span>
+    </div>
+
+    <div className="announcement-preview-item">
+      <strong>TEDx Islington College</strong>
+      <span>September 13</span>
+    </div>
+
+    <div className="announcement-preview-item">
+      <strong>Lens of Hope</strong>
+      <span>September 13–20</span>
+    </div>
+
+    <Link
+      to="/announcements"
+      className="announcement-preview-link"
+      onClick={closeMenu}
+    >
+      View all announcements →
+    </Link>
+  </div>
+</div>
+
+        <form
+          className="navbar-search"
+          onSubmit={handleSearchSubmit}
+          role="search"
+        >
           <svg
             className="navbar-search-icon"
             viewBox="0 0 24 24"
@@ -116,6 +200,7 @@ export default function Navbar() {
             <circle cx="11" cy="11" r="7" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
+
           <input
             type="text"
             value={query}

@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Search from "../pages/Search";
 import About from "../pages/About";
+import Announcements from "../pages/Announcements";
 import ResearchAreas from "../pages/ResearchAreas";
 import ResearchGroups from "../pages/ResearchGroups";
 import ResearchSupport from "../pages/ResearchSupport";
@@ -28,6 +29,7 @@ export default function AppRoutes() {
       <Route path="/search" element={<Search />} />
 
       <Route path="/about" element={<About />} />
+      <Route path="/announcements" element={<Announcements />} />
       <Route path="/research-areas" element={<ResearchAreas />} />
       <Route path="/research-groups" element={<ResearchGroups />} />
       <Route path="/research-support" element={<ResearchSupport />} />

@@ -1717,3 +1717,122 @@ select {
     gap: 0.8rem;
   }
 }
+/* =========================
+   NAVBAR NOTIFICATIONS
+========================= */
+
+.navbar-notification-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-notification {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-left: 4px;
+  color: var(--blue-dark);
+  text-decoration: none;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.navbar-notification:hover {
+  background: var(--soft-blue);
+  color: var(--blue-darker);
+}
+
+.notification-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 1.5px solid var(--white);
+}
+
+/* Announcement preview */
+
+.announcement-preview {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 285px;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid #e3edf4;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(40, 80, 110, 0.12);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    visibility 0.18s ease;
+
+  z-index: 1000;
+}
+
+.navbar-notification-wrapper:hover .announcement-preview {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.announcement-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #edf2f6;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue-darker);
+}
+
+.announcement-new {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--red);
+}
+
+.announcement-preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 2px;
+  border-bottom: 1px solid #f0f3f6;
+}
+
+.announcement-preview-item strong {
+  font-size: 13px;
+  line-height: 1.35;
+  color: #263b4d;
+}
+
+.announcement-preview-item span {
+  font-size: 11px;
+  color: #7a8b99;
+}
+
+.announcement-preview-link {
+  display: block;
+  padding-top: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blue-dark);
+  text-decoration: none;
+}
+
+.announcement-preview-link:hover {
+  color: var(--blue-darker);
+}

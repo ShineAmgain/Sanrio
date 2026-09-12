@@ -1,4 +1,5 @@
 import { useApiData } from "../hooks/useApiData";
+import BackButton from "../components/BackButton";
 import { getPartners } from "../api/partners";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -20,6 +21,7 @@ export default function Partnerships() {
 
   return (
     <div className="page-container">
+      <BackButton />  
       <h1>Partnerships &amp; Collaboration</h1>
 
       {loading && <LoadingState count={4} />}
