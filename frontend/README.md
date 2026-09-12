@@ -22,3 +22,10 @@ Do NOT put `SUPABASE_SERVICE_ROLE_KEY` in the frontend. The service-role key mus
 
 ## Important backend limitation
 The uploaded backend currently has CRUD routes for researchers, projects, publications, events and grants only. The database schema also contains opportunities, research areas, research groups, resources, announcements, partners, statistics, etc., but there are no Express routes for those resources in the uploaded backend. The corresponding frontend navigation is included as a placeholder so those pages can be wired after their API routes exist.
+
+## Completed admin navigation
+The admin portal now includes working management routes for Researchers, Projects, Publications, Events, Opportunities/Grants, Research Areas, Research Groups, Resources, Announcements, Partners, and Research Statistics.
+
+The six newly added management sections use API routes backed by `research_areas`, `research_groups`, `resources`, `announcements`, `partners`, and `research_statistics`. If these tables are not in your Supabase project yet, run `backend/sql/admin_management_tables.sql` in the Supabase SQL editor.
+
+The list screens now support search, status filtering, sorting, edit, archive (where a status field exists), delete, and responsive empty states.
