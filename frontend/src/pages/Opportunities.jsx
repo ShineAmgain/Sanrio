@@ -10,16 +10,38 @@ export default function Opportunities() {
   const grants = data?.data || [];
 
   return (
-    <div className="page-container">
-      <h1>Opportunities</h1>
+    <div className="opportunities-page">
+      <div className="opportunities-header">
+        <div>
+          <span className="opportunities-label">RESEARCH & ACADEMIA</span>
+          <h1>Opportunities</h1>
+          <p>
+            Explore grants and funding opportunities that can support research,
+            academic work, and new ideas.
+          </p>
+        </div>
+      </div>
 
-      {loading && <LoadingState count={4} />}
-      {error && <ErrorState onRetry={reload} />}
-      {!loading && !error && grants.length === 0 && (
-        <EmptyState message="No opportunities available at the moment." />
+      {loading && (
+        <div className="opportunities-content">
+          <LoadingState count={4} />
+        </div>
       )}
+
+      {error && (
+        <div className="opportunities-content">
+          <ErrorState onRetry={reload} />
+        </div>
+      )}
+
+      {!loading && !error && grants.length === 0 && (
+        <div className="opportunities-content">
+          <EmptyState message="No opportunities available at the moment." />
+        </div>
+      )}
+
       {!loading && !error && grants.length > 0 && (
-        <div className="card-grid card-grid-3">
+        <div className="opportunities-grid">
           {grants.map((grant) => (
             <GrantCard key={grant.id} grant={grant} />
           ))}
