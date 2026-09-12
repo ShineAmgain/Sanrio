@@ -2,8 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const supabase = require("./config/supabase");
 
+const researchersRoutes = require("./routes/researchers");
+const projectsRoutes = require("./routes/projects");
+const publicationsRoutes = require("./routes/publications");
+
 const app = express();
 const PORT = 3000;
+
+// Supabase test
 app.get("/api/test-supabase", async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -13,6 +19,7 @@ app.get("/api/test-supabase", async (req, res) => {
 
     if (error) {
       console.error(error);
+
       return res.status(500).json({
         error: error.message
       });
@@ -31,8 +38,15 @@ app.get("/api/test-supabase", async (req, res) => {
     });
   }
 });
+
+// Middleware
 app.use(cors());
 app.use(express.json());
+
+// Kusum's API routes
+app.use("/api/researchers", researchersRoutes);
+app.use("/api/projects", projectsRoutes);
+app.use("/api/publications", publicationsRoutes);
 
 const PYTHON_SERVICE_URL = "http://127.0.0.1:5000";
 
@@ -44,7 +58,7 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Semantic search - currently only testing Node → Python
+// Semantic search
 app.get("/api/search", async (req, res) => {
   try {
     const query = req.query.q;
@@ -55,6 +69,7 @@ app.get("/api/search", async (req, res) => {
       });
     }
 
+    // 1. Convert the user's query into an embedding using Python
     const response = await fetch(`${PYTHON_SERVICE_URL}/embed`, {
       method: "POST",
       headers: {
@@ -69,23 +84,40 @@ app.get("/api/search", async (req, res) => {
       throw new Error(`Python service returned ${response.status}`);
     }
 
-    const data = await response.json();
+    const embeddingData = await response.json();
 
+    // 2. Search all R&D content in Supabase
+    const { data, error } = await supabase.rpc("semantic_search", {
+      query_embedding: embeddingData.embedding,
+      match_threshold: 0.15,
+      match_count: 20
+    });
+
+    if (error) {
+      console.error("Supabase search error:", error);
+
+      return res.status(500).json({
+        error: "Database semantic search failed",
+        details: error.message
+      });
+    }
+
+    // 3. Return the actual search results
     res.json({
       query: query,
-      embedding: data.embedding,
-      dimensions: data.dimensions
+      results: data || []
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Search error:", error);
 
     res.status(500).json({
-      error: "Semantic search service failed"
+      error: "Semantic search failed"
     });
   }
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`Node backend running on http://localhost:${PORT}`);
 });
