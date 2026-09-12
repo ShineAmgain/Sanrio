@@ -6,9 +6,7 @@ export default function ProjectCard({ project }) {
   return (
     <div className="project-card">
       <h3>{project.title}</h3>
-      {project.description && (
-        <p className="card-snippet-clamp">{project.description}</p>
-      )}
+      {project.description && <p className="card-snippet">{project.description}</p>}
 
       {primaryArea?.id ? (
         <Link to={`/research-areas?area=${primaryArea.id}`} className="pill">

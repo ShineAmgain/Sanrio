@@ -16,7 +16,7 @@ export default function PublicationCard({ publication }) {
         )}
         <h3>{publication.title}</h3>
         {(publication.abstract || publication.summary) && (
-          <p className="card-snippet-clamp">
+          <p className="card-snippet">
             {publication.abstract || publication.summary}
           </p>
         )}

@@ -5,16 +5,12 @@ import { getResearchers } from "../api/researchers";
 import { getPublications } from "../api/publications";
 import { getEvents } from "../api/events";
 import { getGrants } from "../api/grants";
-import { getIjmr } from "../api/ijmr";
 import SearchBar from "../components/SearchBar";
 import ProjectCard from "../components/ProjectCard";
 import PublicationCard from "../components/PublicationCard";
-import EventCard from "../components/EventCard";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
-
-const IJMR_URL = "https://ijmr.islingtoncollege.edu.np";
 
 export default function Home() {
   const projects = useApiData(() => getProjects(), []);
@@ -22,14 +18,12 @@ export default function Home() {
   const publications = useApiData(() => getPublications(), []);
   const events = useApiData(() => getEvents(), []);
   const grants = useApiData(() => getGrants(), []);
-  const ijmr = useApiData(() => getIjmr(), []);
 
   const projectList = projects.data?.data || [];
   const researcherList = researchers.data?.data || [];
   const publicationList = publications.data?.data || [];
   const eventList = events.data?.data || [];
   const grantList = grants.data?.data || [];
-  const ijmrLinks = ijmr.data?.data || [];
 
   return (
     <div className="home-page">
@@ -92,35 +86,33 @@ export default function Home() {
         )}
       </section>
 
-      <section className="section">
-        <h2>Publications</h2>
-        <div className="split-section">
-          <div className="split-main">
-            {publications.loading && <LoadingState count={4} />}
-            {publications.error && <ErrorState onRetry={publications.reload} />}
-            {!publications.loading &&
-              !publications.error &&
-              publicationList.length === 0 && (
-                <EmptyState message="No publications available yet." />
-              )}
-            {!publications.loading &&
-              !publications.error &&
-              publicationList.length > 0 && (
-                <div className="card-grid card-grid-2">
-                  {publicationList.slice(0, 4).map((pub) => (
-                    <PublicationCard key={pub.id} publication={pub} />
-                  ))}
-                </div>
-              )}
-          </div>
-          <aside className="split-feature">
-            <h3>Explore Scholarly Research</h3>
-            <p>Dive into published work from across the department.</p>
-            <Link to="/publications" className="btn btn-light">
-              View Research
-            </Link>
-          </aside>
+      <section className="section split-section">
+        <div className="split-main">
+          <h2>Academic Research</h2>
+          {publications.loading && <LoadingState count={4} />}
+          {publications.error && <ErrorState onRetry={publications.reload} />}
+          {!publications.loading &&
+            !publications.error &&
+            publicationList.length === 0 && (
+              <EmptyState message="No publications available yet." />
+            )}
+          {!publications.loading &&
+            !publications.error &&
+            publicationList.length > 0 && (
+              <div className="card-grid card-grid-2">
+                {publicationList.slice(0, 4).map((pub) => (
+                  <PublicationCard key={pub.id} publication={pub} />
+                ))}
+              </div>
+            )}
         </div>
+        <aside className="split-feature">
+          <h3>Explore Scholarly Research</h3>
+          <p>Dive into published work from across the department.</p>
+          <Link to="/publications" className="btn btn-light">
+            View Research
+          </Link>
+        </aside>
       </section>
 
       <section className="section">
@@ -157,28 +149,6 @@ export default function Home() {
           )}
       </section>
 
-      <section className="section">
-        <div className="section-header">
-          <h2>Upcoming Events</h2>
-          <Link to="/events" className="link-arrow">
-            Explore all events
-          </Link>
-        </div>
-
-        {events.loading && <LoadingState count={3} />}
-        {events.error && <ErrorState onRetry={events.reload} />}
-        {!events.loading && !events.error && eventList.length === 0 && (
-          <EmptyState message="No upcoming events found." />
-        )}
-        {!events.loading && !events.error && eventList.length > 0 && (
-          <div className="list-stack">
-            {eventList.slice(0, 3).map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-        )}
-      </section>
-
       <section className="section cta-section">
         <h2>Support for your Next Chapter</h2>
         <p>
@@ -191,39 +161,6 @@ export default function Home() {
         <Link to="/opportunities" className="btn btn-primary">
           Explore grant opportunities
         </Link>
-      </section>
-
-      <section className="section">
-        <div className="section-header">
-          <h2>Islington Journal of Multidisciplinary Research (IJMR)</h2>
-          <Link to="/ijmr" className="link-arrow">
-            Visit IJMR
-          </Link>
-        </div>
-
-        {ijmr.loading && <LoadingState count={3} />}
-        {ijmr.error && <ErrorState onRetry={ijmr.reload} />}
-        {!ijmr.loading && !ijmr.error && ijmrLinks.length === 0 && (
-          <EmptyState message="IJMR links are not available right now." />
-        )}
-        {!ijmr.loading && !ijmr.error && ijmrLinks.length > 0 && (
-          <div className="card-grid card-grid-3">
-            {ijmrLinks.slice(0, 3).map((link) => (
-              <a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noreferrer"
-                className="grant-card"
-              >
-                <h3>{link.title}</h3>
-                {link.description && (
-                  <p className="card-snippet">{link.description}</p>
-                )}
-              </a>
-            ))}
-          </div>
-        )}
       </section>
     </div>
   );
