@@ -6,7 +6,7 @@ const supabase = require('../config/supabase');
 router.get('/', async (req, res) => {
   const { data, error } = await supabase
     .from('researchers')
-    .select('researcher_id, name, position, department_id, status');
+    .select('id, name, position, department_id, status');
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
@@ -20,7 +20,7 @@ router.get('/:id', async (req, res) => {
       researcher_projects ( role, projects (*) ),
       researcher_publications ( author_order, publications (*) )
     `)
-    .eq('researcher_id', req.params.id)
+    .eq('id', req.params.id)
     .single();
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
@@ -41,7 +41,7 @@ router.put('/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('researchers')
     .update(req.body)
-    .eq('researcher_id', req.params.id)
+    .eq('id', req.params.id)
     .select();
   if (error) return res.status(500).json({ error: error.message });
   res.json(data[0]);
@@ -52,7 +52,7 @@ router.delete('/:id', async (req, res) => {
   const { error } = await supabase
     .from('researchers')
     .delete()
-    .eq('researcher_id', req.params.id);
+    .eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.status(204).send();
 });

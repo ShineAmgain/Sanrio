@@ -5,7 +5,7 @@ const supabase = require('../config/supabase');
 router.get('/', async (req, res) => {
   const { data, error } = await supabase
     .from('projects')
-    .select('project_id, title, status, start_date, end_date, lead_researcher_id');
+    .select('id, title, status, start_date, end_date, lead_researcher_id');
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
@@ -18,7 +18,7 @@ router.get('/:id', async (req, res) => {
       researcher_projects ( role, researchers (*) ),
       project_publications ( relationship, publications (*) )
     `)
-    .eq('project_id', req.params.id)
+    .eq('id', req.params.id)
     .single();
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
@@ -34,14 +34,14 @@ router.put('/:id', async (req, res) => {
   const { data, error } = await supabase
     .from('projects')
     .update(req.body)
-    .eq('project_id', req.params.id)
+    .eq('id', req.params.id)
     .select();
   if (error) return res.status(500).json({ error: error.message });
   res.json(data[0]);
 });
 
 router.delete('/:id', async (req, res) => {
-  const { error } = await supabase.from('projects').delete().eq('project_id', req.params.id);
+  const { error } = await supabase.from('projects').delete().eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.status(204).send();
 });
