@@ -5,86 +5,220 @@ import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 
-// Pulled from GET /api/resources (Supabase table: resources). Assumed
-// columns: title, category, description, url — adjust the field names
-// below if your actual schema differs.
 export default function ResearchSupport() {
-  const { data, loading, error, reload } = useApiData(() => getResources(), []);
+  const { data, loading, error, reload } = useApiData(
+    () => getResources(),
+    []
+  );
+
   const resources = data?.data || [];
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
 
   const categories = useMemo(
-    () => ["all", ...new Set(resources.map((r) => r.category).filter(Boolean))],
+    () => [
+      "all",
+      ...new Set(
+        resources
+          .map((resource) => resource.category)
+          .filter(Boolean)
+      ),
+    ],
     [resources]
   );
 
-  const filtered = resources.filter((r) => {
-    const title = r.title || r.name || "";
-    const matchesQuery = title.toLowerCase().includes(query.toLowerCase());
-    const matchesCategory = category === "all" || r.category === category;
+  const filtered = resources.filter((resource) => {
+    const title = resource.title || "";
+    const description = resource.description || "";
+
+    const searchable = `${title} ${description}`.toLowerCase();
+
+    const matchesQuery = searchable.includes(
+      query.toLowerCase()
+    );
+
+    const matchesCategory =
+      category === "all" ||
+      resource.category === category;
+
     return matchesQuery && matchesCategory;
   });
 
+  function getResourceUrl(resource) {
+    return resource.external_url || resource.source_url || null;
+  }
+
+  function getResourceAction(resource) {
+    if (resource.external_url) {
+      return resource.resource_type === "folder"
+        ? "Open materials"
+        : "Open resource";
+    }
+
+    if (resource.source_url) {
+      return "View source";
+    }
+
+    return null;
+  }
+
   return (
-    <div className="page-container">
-      <h1>Research Support &amp; Resources</h1>
+    <div className="research-support-page">
 
-      {loading && <LoadingState count={6} />}
-      {error && <ErrorState onRetry={reload} />}
+      {/* HEADER */}
+      <header className="research-support-header">
+        <div className="research-support-heading">
 
-      {!loading && !error && (
-        <>
-          <div className="filter-row">
+          <p className="research-page-eyebrow">
+            RESEARCH SUPPORT
+          </p>
+
+          <h1>
+            Tools, guidance
+            <br />
+            &amp; resources.
+          </h1>
+
+          <p className="research-support-intro">
+            Practical resources, workshops and materials
+            supporting research at Islington College.
+          </p>
+
+        </div>
+
+        <div className="research-support-mark">
+          <div className="research-support-mark-line" />
+          <span>R&amp;D</span>
+        </div>
+      </header>
+
+      {/* SEARCH / FILTER */}
+      {!loading && !error && resources.length > 0 && (
+        <div className="research-support-controls">
+
+          <div className="research-support-search">
+            <span>⌕</span>
+
             <input
               type="text"
-              placeholder="Search resources..."
+              placeholder="Search resources"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="search-bar-inline"
             />
-            {categories.map((c) => (
+          </div>
+
+          <div className="research-support-filters">
+            {categories.map((item) => (
               <button
-                key={c}
-                className={category === c ? "chip chip-active" : "chip"}
-                onClick={() => setCategory(c)}
+                key={item}
+                type="button"
+                className={
+                  category === item
+                    ? "research-support-filter active"
+                    : "research-support-filter"
+                }
+                onClick={() => setCategory(item)}
               >
-                {c === "all" ? "All" : c}
+                {item === "all" ? "All" : item}
               </button>
             ))}
           </div>
 
-    {filtered.length === 0 ? (
-  <EmptyState message="No resources published yet." />
-) : (
-  <div className="card-grid card-grid-3">
-    {filtered.map((r) => (
-      <div className="project-card" key={r.id}>
-        {r.category && <span className="pill">{r.category}</span>}
-
-        <h3>{r.title || r.name}</h3>
-
-        {r.description && (
-          <p className="card-snippet">{r.description}</p>
-        )}
-
-        {r.url && (
-          <a
-            href={r.url}
-            target="_blank"
-            rel="noreferrer"
-            className="discovery-link"
-          >
-            Access resource →
-          </a>
-        )}
-      </div>
-    ))}
-  </div>
-)}
-        </>
+        </div>
       )}
+
+      {/* STATES */}
+      {loading && (
+        <div className="research-support-content">
+          <LoadingState count={6} />
+        </div>
+      )}
+
+      {error && (
+        <div className="research-support-content">
+          <ErrorState onRetry={reload} />
+        </div>
+      )}
+
+      {!loading && !error && filtered.length === 0 && (
+        <div className="research-support-content">
+          <EmptyState message="No resources match your search." />
+        </div>
+      )}
+
+      {/* RESOURCES */}
+      {!loading && !error && filtered.length > 0 && (
+        <section className="research-resource-list">
+
+          <div className="research-resource-list-header">
+            <span>RESOURCE</span>
+            <span>TYPE</span>
+            <span />
+          </div>
+
+          {filtered.map((resource, index) => {
+            const url = getResourceUrl(resource);
+            const action = getResourceAction(resource);
+
+            return (
+              <article
+                key={resource.id}
+                className="research-resource-row"
+              >
+
+                <div className="research-resource-number">
+                  {String(index + 1).padStart(2, "0")}
+                </div>
+
+                <div className="research-resource-main">
+
+                  <span className="research-resource-category">
+                    {resource.category || "Research"}
+                  </span>
+
+                  <h2>
+                    {resource.title}
+                  </h2>
+
+                  {resource.description && (
+                    <p>
+                      {resource.description}
+                    </p>
+                  )}
+
+                </div>
+
+                <div className="research-resource-type">
+                  {resource.resource_type || "Resource"}
+                </div>
+
+                <div className="research-resource-action">
+
+                  {url && action ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {action}
+                      <span>↗</span>
+                    </a>
+                  ) : (
+                    <span className="resource-unavailable">
+                      No link available
+                    </span>
+                  )}
+
+                </div>
+
+              </article>
+            );
+          })}
+
+        </section>
+      )}
+
     </div>
   );
 }

@@ -1,108 +1,252 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useApiData } from "../hooks/useApiData";
-import { getResearchGroups, getResearchGroup } from "../api/researchGroups";
+import {
+  getResearchGroups,
+  getResearchGroup,
+} from "../api/researchGroups";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 
-// Research Groups are distinct from Research Areas: an area is a taxonomy
-// tag (e.g. "AI"), a group is a standing team people belong to (via the
-// researcher_research_groups / project_research_groups join tables).
 export default function ResearchGroups() {
-  const groupsState = useApiData(() => getResearchGroups(), []);
+  const groupsState = useApiData(
+    () => getResearchGroups(),
+    []
+  );
+
   const [activeGroupId, setActiveGroupId] = useState(null);
 
   const groups = groupsState.data?.data || [];
 
-  // Membership comes through the junction tables, fetched live for the
-  // selected group only — same pattern as the Research Areas page.
   const detailState = useApiData(
-    () => (activeGroupId ? getResearchGroup(activeGroupId) : Promise.resolve(null)),
+    () =>
+      activeGroupId
+        ? getResearchGroup(activeGroupId)
+        : Promise.resolve(null),
     [activeGroupId]
   );
+
   const activeGroup = detailState.data?.data;
-  const relatedResearchers = activeGroup?.researchers || [];
-  const relatedProjects = activeGroup?.projects || [];
+
+  const researchers = activeGroup?.researchers || [];
+  const projects = activeGroup?.projects || [];
+
+  function selectGroup(id) {
+    setActiveGroupId(
+      activeGroupId === id ? null : id
+    );
+  }
 
   return (
-    <div className="page-container">
-      <h1>Research Groups</h1>
-      <p className="detail-lead">
-        Standing research teams within the R&amp;D ecosystem — browse each
-        group to see its members and active projects.
-      </p>
+    <div className="research-groups-page">
 
-      {groupsState.loading && <LoadingState count={6} />}
-      {groupsState.error && <ErrorState onRetry={groupsState.reload} />}
-      {!groupsState.loading && !groupsState.error && groups.length === 0 && (
-        <EmptyState message="No research groups configured yet." />
+      {/* HEADER */}
+      <header className="research-groups-header">
+
+        <div>
+          <p className="research-page-eyebrow">
+            RESEARCH NETWORK
+          </p>
+
+          <h1>
+            Research Groups
+          </h1>
+
+          <p>
+            Standing research communities connecting
+            people, projects and shared areas of inquiry.
+          </p>
+        </div>
+
+        <div className="research-groups-index">
+          <strong>
+            {groups.length}
+          </strong>
+          <span>
+            groups
+          </span>
+        </div>
+
+      </header>
+
+      {groupsState.loading && (
+        <LoadingState count={4} />
       )}
 
-      {!groupsState.loading && !groupsState.error && groups.length > 0 && (
-        <div className="card-grid card-grid-3">
-          {groups.map((group) => (
+      {groupsState.error && (
+        <ErrorState onRetry={groupsState.reload} />
+      )}
+
+      {!groupsState.loading &&
+        !groupsState.error &&
+        groups.length === 0 && (
+          <EmptyState message="No research groups configured yet." />
+        )}
+
+      {/* GROUP INDEX */}
+      {!groupsState.loading &&
+        !groupsState.error &&
+        groups.length > 0 && (
+
+        <section className="research-group-index">
+
+          {groups.map((group, index) => (
             <button
               key={group.id}
+              type="button"
               className={
                 activeGroupId === group.id
-                  ? "area-chip area-chip-active"
-                  : "area-chip"
+                  ? "research-group-entry active"
+                  : "research-group-entry"
               }
-              onClick={() =>
-                setActiveGroupId(activeGroupId === group.id ? null : group.id)
-              }
+              onClick={() => selectGroup(group.id)}
             >
-              <strong>{group.name || "Untitled group"}</strong>
-              {group.description && (
-                <p style={{ margin: "0.5rem 0 0", fontWeight: 400 }}>
-                  {group.description}
-                </p>
-              )}
+
+              <span className="research-group-number">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+
+              <span className="research-group-name">
+                {group.name}
+              </span>
+
+              <span className="research-group-description">
+                {group.description}
+              </span>
+
+              <span className="research-group-arrow">
+                {activeGroupId === group.id ? "−" : "→"}
+              </span>
+
             </button>
           ))}
-        </div>
+
+        </section>
       )}
 
+      {/* CONNECTION DETAIL */}
       {activeGroupId && (
-        <div className="section" style={{ padding: "2rem 0" }}>
-          {detailState.loading && <LoadingState count={2} />}
-          {detailState.error && <ErrorState onRetry={detailState.reload} />}
+        <section className="research-group-detail">
 
-          {!detailState.loading && !detailState.error && activeGroup && (
-        <>
-          <h2>{activeGroup.name || "Untitled group"}</h2>
-          <p>{activeGroup.description || "Not available"}</p>
-
-          <h3>Members</h3>
-          {relatedResearchers.length === 0 ? (
-            <EmptyState message="No members linked to this group yet." />
-          ) : (
-            <ul>
-              {relatedResearchers.map((r) => (
-                <li key={r.id}>
-                  <Link to={`/researchers/${r.id}`}>{r.name}</Link>
-                </li>
-              ))}
-            </ul>
+          {detailState.loading && (
+            <LoadingState count={2} />
           )}
 
-          <h3>Projects</h3>
-          {relatedProjects.length === 0 ? (
-            <EmptyState message="No projects linked to this group yet." />
-          ) : (
-            <ul>
-              {relatedProjects.map((p) => (
-                <li key={p.id}>
-                  <Link to={`/projects/${p.id}`}>{p.title}</Link>
-                </li>
-              ))}
-            </ul>
+          {detailState.error && (
+            <ErrorState onRetry={detailState.reload} />
           )}
-        </>
+
+          {!detailState.loading &&
+            !detailState.error &&
+            activeGroup && (
+
+            <>
+
+              <div className="research-group-detail-header">
+
+                <div>
+                  <p className="research-page-eyebrow">
+                    RESEARCH GROUP
+                  </p>
+
+                  <h2>
+                    {activeGroup.name}
+                  </h2>
+
+                  <p>
+                    {activeGroup.description}
+                  </p>
+                </div>
+
+                <div className="research-group-stats">
+                  <div>
+                    <strong>{researchers.length}</strong>
+                    <span>Researchers</span>
+                  </div>
+
+                  <div>
+                    <strong>{projects.length}</strong>
+                    <span>Projects</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="research-group-columns">
+
+                {/* PEOPLE */}
+                <div className="research-group-column">
+
+                  <div className="research-group-column-title">
+                    <span>01</span>
+                    <h3>Researchers</h3>
+                  </div>
+
+                  {researchers.length === 0 ? (
+                    <EmptyState message="No members linked to this group yet." />
+                  ) : (
+                    <div className="research-group-links">
+
+                      {researchers.map((researcher) => (
+                        <Link
+                          key={researcher.id}
+                          to={`/researchers/${researcher.id}`}
+                          className="research-group-link"
+                        >
+                          <span>
+                            {researcher.name}
+                          </span>
+
+                          <span>→</span>
+                        </Link>
+                      ))}
+
+                    </div>
+                  )}
+
+                </div>
+
+                {/* PROJECTS */}
+                <div className="research-group-column">
+
+                  <div className="research-group-column-title">
+                    <span>02</span>
+                    <h3>Projects</h3>
+                  </div>
+
+                  {projects.length === 0 ? (
+                    <EmptyState message="No projects linked to this group yet." />
+                  ) : (
+                    <div className="research-group-links">
+
+                      {projects.map((project) => (
+                        <Link
+                          key={project.id}
+                          to={`/projects/${project.id}`}
+                          className="research-group-link"
+                        >
+                          <span>
+                            {project.title}
+                          </span>
+
+                          <span>→</span>
+                        </Link>
+                      ))}
+
+                    </div>
+                  )}
+
+                </div>
+
+              </div>
+
+            </>
           )}
-        </div>
+
+        </section>
       )}
+
     </div>
   );
 }
