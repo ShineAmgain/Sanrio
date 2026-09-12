@@ -347,6 +347,144 @@ async function embedGrants() {
 
 /*
 ========================================
+RESEARCH AREAS
+========================================
+*/
+
+async function embedResearchAreas() {
+  console.log("\n--- Research Areas ---");
+
+  const { data, error } = await supabase
+    .from("research_areas")
+    .select(`id, name, description`);
+
+  if (error) {
+    console.error(`⚠️  Research Areas: ${error.message} — skipping (table/columns may differ).`);
+    return;
+  }
+
+  console.log(`Found ${data.length} research areas.`);
+
+  for (const area of data) {
+    const text = [area.name, area.description].filter(Boolean).join(". ");
+    if (!text.trim()) {
+      console.log(`Skipping research area ${area.id}`);
+      continue;
+    }
+
+    const embedding = await createEmbedding(text);
+
+    const { error: updateError } = await supabase
+      .from("research_areas")
+      .update({ embedding })
+      .eq("id", area.id);
+
+    if (updateError) {
+      console.error(`❌ Research area ${area.id}: ${updateError.message}`);
+      continue;
+    }
+
+    console.log(`✓ ${area.name}`);
+  }
+}
+
+/*
+========================================
+RESOURCES
+========================================
+*/
+
+async function embedResources() {
+  console.log("\n--- Resources ---");
+
+  const { data, error } = await supabase
+    .from("resources")
+    .select(`id, title, description, category`);
+
+  if (error) {
+    console.error(`⚠️  Resources: ${error.message} — skipping (table/columns may differ).`);
+    return;
+  }
+
+  console.log(`Found ${data.length} resources.`);
+
+  for (const resource of data) {
+    const text = [resource.title, resource.description, resource.category]
+      .filter(Boolean)
+      .join(". ");
+    if (!text.trim()) {
+      console.log(`Skipping resource ${resource.id}`);
+      continue;
+    }
+
+    const embedding = await createEmbedding(text);
+
+    const { error: updateError } = await supabase
+      .from("resources")
+      .update({ embedding })
+      .eq("id", resource.id);
+
+    if (updateError) {
+      console.error(`❌ Resource ${resource.id}: ${updateError.message}`);
+      continue;
+    }
+
+    console.log(`✓ ${resource.title}`);
+  }
+}
+
+/*
+========================================
+OPPORTUNITIES (distinct from Grants — see brief section 4)
+========================================
+*/
+
+async function embedOpportunities() {
+  console.log("\n--- Opportunities ---");
+
+  const { data, error } = await supabase
+    .from("opportunities")
+    .select(`id, title, description, eligibility, opportunity_type`);
+
+  if (error) {
+    console.error(`⚠️  Opportunities: ${error.message} — skipping (table/columns may differ).`);
+    return;
+  }
+
+  console.log(`Found ${data.length} opportunities.`);
+
+  for (const opportunity of data) {
+    const text = [
+      opportunity.title,
+      opportunity.description,
+      opportunity.eligibility,
+      opportunity.opportunity_type,
+    ]
+      .filter(Boolean)
+      .join(". ");
+    if (!text.trim()) {
+      console.log(`Skipping opportunity ${opportunity.id}`);
+      continue;
+    }
+
+    const embedding = await createEmbedding(text);
+
+    const { error: updateError } = await supabase
+      .from("opportunities")
+      .update({ embedding })
+      .eq("id", opportunity.id);
+
+    if (updateError) {
+      console.error(`❌ Opportunity ${opportunity.id}: ${updateError.message}`);
+      continue;
+    }
+
+    console.log(`✓ ${opportunity.title}`);
+  }
+}
+
+/*
+========================================
 RUN EVERYTHING
 ========================================
 */
@@ -367,6 +505,12 @@ async function main() {
   await embedEvents();
 
   await embedGrants();
+
+  await embedResearchAreas();
+
+  await embedResources();
+
+  await embedOpportunities();
 
   console.log("\n======================================");
   console.log("✅ ALL EMBEDDINGS GENERATED");

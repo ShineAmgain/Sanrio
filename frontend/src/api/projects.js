@@ -8,6 +8,10 @@ export function getProject(id) {
   return apiFetch(`/api/projects/${id}`);
 }
 
+export function getRelatedProjects(id) {
+  return apiFetch(`/api/projects/${id}/related`);
+}
+
 export function createProject(payload) {
   return apiFetch("/api/projects", {
     method: "POST",

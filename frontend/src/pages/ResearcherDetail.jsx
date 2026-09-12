@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import BackButton from "../components/BackButton";
 import { useApiData } from "../hooks/useApiData";
 import { getResearcher } from "../api/researchers";
 import LoadingState from "../components/LoadingState";
@@ -31,7 +32,9 @@ export default function ResearcherDetail() {
   const publications = researcher.researcher_publications || [];
 
   return (
+    
     <div className="page-container researcher-profile">
+      <BackButton />
 
       {/* Profile Header */}
       <div className="profile-header">
@@ -53,39 +56,15 @@ export default function ResearcherDetail() {
           )}
 
           <div className="profile-links">
+            {researcher.address && <span className="muted">{researcher.address}</span>}
             {researcher.email && (
               <a href={`mailto:${researcher.email}`}>
                 Email
               </a>
             )}
-
-            {researcher.profile_url && (
-              <a
-                href={researcher.profile_url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Website
-              </a>
-            )}
-
-            {researcher.orcid_url && (
-              <a
-                href={researcher.orcid_url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                ORCID
-              </a>
-            )}
-
-            {researcher.google_scholar_url && (
-              <a
-                href={researcher.google_scholar_url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Google Scholar
+            {researcher.linkedin_url && (
+              <a href={researcher.linkedin_url} target="_blank" rel="noreferrer">
+                LinkedIn
               </a>
             )}
           </div>
@@ -100,14 +79,24 @@ export default function ResearcherDetail() {
           {/* Research Areas */}
           {researcher.research_areas?.length > 0 && (
             <div className="info-card">
-              <h3>Research Areas</h3>
+              <h3>Research Interest</h3>
 
               <div className="tag-row">
-                {researcher.research_areas.map((area) => (
-                  <span className="tag" key={area}>
-                    {area}
-                  </span>
-                ))}
+                {researcher.research_areas.map((area) =>
+                  area?.id ? (
+                    <Link
+                      key={area.id}
+                      to={`/research-areas?area=${area.id}`}
+                      className="tag"
+                    >
+                      {area.name}
+                    </Link>
+                  ) : (
+                    <span className="tag" key={area?.name || area}>
+                      {area?.name || area}
+                    </span>
+                  )
+                )}
               </div>
             </div>
           )}
@@ -202,6 +191,45 @@ export default function ResearcherDetail() {
 
         {/* Sidebar */}
         <aside className="profile-sidebar">
+
+          {researcher.orcid_url && (
+            <a
+              className="side-link"
+              href={researcher.orcid_url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              ORCID
+              <span className="muted" style={{ display: "block", fontWeight: 400 }}>
+                View ORCID profile
+              </span>
+            </a>
+          )}
+
+          {researcher.google_scholar_url && (
+            <a
+              className="side-link"
+              href={researcher.google_scholar_url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Google Scholar
+              <span className="muted" style={{ display: "block", fontWeight: 400 }}>
+                View Google Scholar profile
+              </span>
+            </a>
+          )}
+
+          {researcher.profile_url && (
+            <a
+              className="side-link"
+              href={researcher.profile_url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Website/Profile
+            </a>
+          )}
 
           <div className="info-card">
             <h3>Researcher Stats</h3>

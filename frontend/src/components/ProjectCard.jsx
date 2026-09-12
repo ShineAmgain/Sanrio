@@ -1,12 +1,20 @@
 import { Link } from "react-router-dom";
 
 export default function ProjectCard({ project }) {
+  const primaryArea = project.research_areas?.[0];
+
   return (
     <div className="project-card">
       <h3>{project.title}</h3>
       {project.description && <p className="card-snippet">{project.description}</p>}
 
-      {project.research_area && <span className="pill">{project.research_area}</span>}
+      {primaryArea?.id ? (
+        <Link to={`/research-areas?area=${primaryArea.id}`} className="pill">
+          {primaryArea.name}
+        </Link>
+      ) : (
+        project.research_area && <span className="pill">{project.research_area}</span>
+      )}
 
       {project.lead_researcher_name && (
         <p className="meta-line">

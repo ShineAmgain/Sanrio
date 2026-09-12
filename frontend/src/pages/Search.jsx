@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useApiData } from "../hooks/useApiData";
 import { semanticSearch } from "../api/search";
-import { searchFilters } from "../routes/routeMap";
+import { searchFilters, matchesFilter } from "../routes/routeMap";
 import SearchBar from "../components/SearchBar";
 import SearchResultCard from "../components/SearchResultCard";
 import LoadingState from "../components/LoadingState";
@@ -22,11 +22,9 @@ export default function Search() {
   const results = data?.results || [];
 
   // Filtering happens client-side: the API already returns result_type on
-  // every row, so no extra backend endpoint is needed.
-  const filteredResults =
-    activeFilter === "all"
-      ? results
-      : results.filter((r) => r.result_type === activeFilter);
+  // every row, so no extra backend endpoint is needed. "grant" and
+  // "opportunity" share one chip since they're one UI concept.
+  const filteredResults = results.filter((r) => matchesFilter(r, activeFilter));
 
   return (
     <div className="page-container search-page">

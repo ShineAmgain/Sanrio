@@ -1,4 +1,5 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import BackButton from "../components/BackButton";
 import { useApiData } from "../hooks/useApiData";
 import { getEvent } from "../api/events";
 import LoadingState from "../components/LoadingState";
@@ -16,6 +17,7 @@ export default function EventDetail() {
 
   return (
     <div className="page-container detail-page">
+      <BackButton />
       {event.event_type && <span className="badge badge-type">{event.event_type}</span>}
       <h1>{event.title}</h1>
 
@@ -27,6 +29,43 @@ export default function EventDetail() {
       )}
       {event.location && <p className="meta-line">{event.location}</p>}
       {event.description && <p className="detail-lead">{event.description}</p>}
+
+      {event.research_areas?.length > 0 && (
+        <div className="tag-row" style={{ margin: "0.75rem 0" }}>
+          {event.research_areas.map((area) => (
+            <Link key={area.id} to={`/research-areas?area=${area.id}`} className="tag">
+              {area.name}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {event.speakers?.length > 0 && (
+        <section>
+          <h3>Speakers</h3>
+          <div className="related-list">
+            {event.speakers.map((r) => (
+              <Link key={r.id} to={`/researchers/${r.id}`} className="related-item">
+                <h4>{r.name}</h4>
+                {r.position && <p className="muted">{r.position}</p>}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {event.publications?.length > 0 && (
+        <section>
+          <h3>Related Publications</h3>
+          <div className="related-list">
+            {event.publications.map((p) => (
+              <Link key={p.id} to={`/publications/${p.id}`} className="related-item">
+                <h4>{p.title}</h4>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="detail-actions">
         {event.registration_url && (

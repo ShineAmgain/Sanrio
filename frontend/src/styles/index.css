@@ -328,6 +328,10 @@ button, input, select { font-family: inherit; font-size: inherit; }
   min-width: 220px;
 }
 
+/* ---------- Related research (project/publication detail pages) ---------- */
+.related-research { margin-top: 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.related-research .result-card { height: 100%; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .split-section, .profile-grid { grid-template-columns: 1fr; }

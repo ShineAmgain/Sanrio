@@ -7,6 +7,9 @@ const TYPE_LABELS = {
   publication: "Publication",
   event: "Event",
   grant: "Opportunity",
+  opportunity: "Opportunity",
+  research_area: "Research Area",
+  resource: "Resource",
 };
 
 export default function SearchResultCard({ result }) {

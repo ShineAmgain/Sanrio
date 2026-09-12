@@ -55,25 +55,34 @@ export default function ResearchSupport() {
             ))}
           </div>
 
-          {filtered.length === 0 ? (
-            <EmptyState message="No resources published yet." />
-          ) : (
-            <div className="card-grid card-grid-3">
-              {filtered.map((r) => (
-                <a
-                  href={r.url || r.file_url || undefined}
-                  target={r.url || r.file_url ? "_blank" : undefined}
-                  rel="noreferrer"
-                  className="project-card"
-                  key={r.id}
-                >
-                  {r.category && <span className="pill">{r.category}</span>}
-                  <h3>{r.title || r.name}</h3>
-                  {r.description && <p className="card-snippet">{r.description}</p>}
-                </a>
-              ))}
-            </div>
-          )}
+    {filtered.length === 0 ? (
+  <EmptyState message="No resources published yet." />
+) : (
+  <div className="card-grid card-grid-3">
+    {filtered.map((r) => (
+      <div className="project-card" key={r.id}>
+        {r.category && <span className="pill">{r.category}</span>}
+
+        <h3>{r.title || r.name}</h3>
+
+        {r.description && (
+          <p className="card-snippet">{r.description}</p>
+        )}
+
+        {r.url && (
+          <a
+            href={r.url}
+            target="_blank"
+            rel="noreferrer"
+            className="discovery-link"
+          >
+            Access resource →
+          </a>
+        )}
+      </div>
+    ))}
+  </div>
+)}
         </>
       )}
     </div>

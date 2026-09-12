@@ -8,6 +8,10 @@ export function getPublication(id) {
   return apiFetch(`/api/publications/${id}`);
 }
 
+export function getRelatedPublications(id) {
+  return apiFetch(`/api/publications/${id}/related`);
+}
+
 export function createPublication(payload) {
   return apiFetch("/api/publications", {
     method: "POST",

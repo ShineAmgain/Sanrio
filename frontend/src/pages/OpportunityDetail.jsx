@@ -1,4 +1,5 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import BackButton from "../components/BackButton";
 import { useApiData } from "../hooks/useApiData";
 import { getGrant } from "../api/grants";
 import LoadingState from "../components/LoadingState";
@@ -16,10 +17,21 @@ export default function OpportunityDetail() {
 
   return (
     <div className="page-container detail-page">
+      <BackButton />
       {grant.funding_type && <span className="badge badge-type">{grant.funding_type}</span>}
       <h1>{grant.title}</h1>
       {grant.provider && <p className="meta-line">{grant.provider}</p>}
       {grant.description && <p className="detail-lead">{grant.description}</p>}
+
+      {grant.research_areas?.length > 0 && (
+        <div className="tag-row" style={{ margin: "0.75rem 0" }}>
+          {grant.research_areas.map((area) => (
+            <Link key={area.id} to={`/research-areas?area=${area.id}`} className="tag">
+              {area.name}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {grant.amount && (
         <p className="meta-line">
@@ -49,6 +61,20 @@ export default function OpportunityDetail() {
         <section>
           <h3>Application Process</h3>
           <p>{grant.application_process}</p>
+        </section>
+      )}
+
+      {grant.projects?.length > 0 && (
+        <section>
+          <h3>Funded Projects</h3>
+          <div className="related-list">
+            {grant.projects.map((p) => (
+              <Link key={p.id} to={`/projects/${p.id}`} className="related-item">
+                <h4>{p.title}</h4>
+                {p.status && <p className="muted">Status: {p.status}</p>}
+              </Link>
+            ))}
+          </div>
         </section>
       )}
 

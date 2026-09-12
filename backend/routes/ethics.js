@@ -4,7 +4,7 @@ const supabase = require('../config/supabase');
 
 router.get('/', async (req, res) => {
   const { data, error } = await supabase
-    .from('research_groups')
+    .from('ethics_integrity')
     .select('*');
   if (error) return res.status(500).json({ error: error.message });
   res.json({ data });
@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const { data, error } = await supabase
-    .from('research_groups')
+    .from('ethics_integrity')
     .select('*')
     .eq('id', req.params.id)
     .single();
@@ -21,14 +21,14 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { data, error } = await supabase.from('research_groups').insert(req.body).select();
+  const { data, error } = await supabase.from('ethics_integrity').insert(req.body).select();
   if (error) return res.status(500).json({ error: error.message });
   res.status(201).json({ data: data[0] });
 });
 
 router.put('/:id', async (req, res) => {
   const { data, error } = await supabase
-    .from('research_groups')
+    .from('ethics_integrity')
     .update(req.body)
     .eq('id', req.params.id)
     .select();
@@ -37,7 +37,7 @@ router.put('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  const { error } = await supabase.from('research_groups').delete().eq('id', req.params.id);
+  const { error } = await supabase.from('ethics_integrity').delete().eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.status(204).send();
 });
