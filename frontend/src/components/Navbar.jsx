@@ -1,4 +1,5 @@
-import { Link, NavLink } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import logoIcon from "../assets/logo-icon.png";
 
 const RESEARCH_DROPDOWN = [
@@ -14,36 +15,116 @@ function navLinkClass({ isActive }) {
 }
 
 export default function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  function closeMenu() {
+    setMenuOpen(false);
+  }
+
+  function handleSearchSubmit(e) {
+    e.preventDefault();
+    const q = query.trim();
+    if (!q) return;
+    navigate(`/search?q=${encodeURIComponent(q)}`);
+    closeMenu();
+  }
+
   return (
     <header className="navbar">
-      <Link to="/" className="navbar-brand">
-        <img src={logoIcon} alt="" className="brand-swirl" aria-hidden="true" />
-        <span className="brand-text">
-          Research &amp;<br />Development
-        </span>
-      </Link>
+      <div className="navbar-row">
+        <Link to="/" className="navbar-brand" onClick={closeMenu}>
+          <img src={logoIcon} alt="" className="brand-swirl" aria-hidden="true" />
+          <span className="brand-text">
+            Research &amp;<br />Development
+          </span>
+        </Link>
 
-      <nav className="navbar-links" aria-label="Main navigation">
-        <NavLink to="/" end className={navLinkClass}>Home</NavLink>
-        <NavLink to="/about" className={navLinkClass}>About R&amp;D</NavLink>
+        <button
+          type="button"
+          className="navbar-toggle"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span className="navbar-toggle-bar" />
+          <span className="navbar-toggle-bar" />
+          <span className="navbar-toggle-bar" />
+        </button>
+      </div>
+
+      <nav
+        className={menuOpen ? "navbar-links navbar-links-open" : "navbar-links"}
+        aria-label="Main navigation"
+      >
+        <NavLink to="/" end className={navLinkClass} onClick={closeMenu}>
+          Home
+        </NavLink>
+        <NavLink to="/about" className={navLinkClass} onClick={closeMenu}>
+          About R&amp;D
+        </NavLink>
 
         <details className="navbar-dropdown">
           <summary className="navbar-link">Research</summary>
           <div className="dropdown-panel">
             {RESEARCH_DROPDOWN.map((item) => (
-              <Link key={item.to} to={item.to} className="dropdown-item">
+              <Link
+                key={item.to}
+                to={item.to}
+                className="dropdown-item"
+                onClick={closeMenu}
+              >
                 {item.label}
               </Link>
             ))}
           </div>
         </details>
 
-        <NavLink to="/researchers" className={navLinkClass}>People</NavLink>
-        <NavLink to="/projects" className={navLinkClass}>Projects</NavLink>
-        <NavLink to="/publications" className={navLinkClass}>Publications</NavLink>
-        <NavLink to="/events" className={navLinkClass}>Events</NavLink>
-        <NavLink to="/opportunities" className={navLinkClass}>Grants</NavLink>
-        <NavLink to="/ijmr" className={navLinkClass}>IJMR</NavLink>
+        <NavLink to="/researchers" className={navLinkClass} onClick={closeMenu}>
+          People
+        </NavLink>
+        <NavLink to="/projects" className={navLinkClass} onClick={closeMenu}>
+          Projects
+        </NavLink>
+        <NavLink to="/publications" className={navLinkClass} onClick={closeMenu}>
+          Publications
+        </NavLink>
+        <NavLink to="/events" className={navLinkClass} onClick={closeMenu}>
+          Events
+        </NavLink>
+        <NavLink to="/opportunities" className={navLinkClass} onClick={closeMenu}>
+          Grants
+        </NavLink>
+        <NavLink to="/ijmr" className={navLinkClass} onClick={closeMenu}>
+          IJMR
+        </NavLink>
+
+        <form className="navbar-search" onSubmit={handleSearchSubmit} role="search">
+          <svg
+            className="navbar-search-icon"
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search"
+            aria-label="Search"
+            className="navbar-search-input"
+          />
+        </form>
       </nav>
     </header>
   );
