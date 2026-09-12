@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
+const requireAdmin = require('../routes/requireadmin');
 
 // GET all researchers (list view)
 router.get('/', async (req, res) => {
@@ -26,8 +27,8 @@ router.get('/:id', async (req, res) => {
   res.json(data);
 });
 
-// CREATE
-router.post('/', async (req, res) => {
+// CREATE (admin only)
+router.post('/', requireAdmin, async (req, res) => {
   const { data, error } = await supabase
     .from('researchers')
     .insert(req.body)
@@ -36,8 +37,8 @@ router.post('/', async (req, res) => {
   res.status(201).json(data[0]);
 });
 
-// UPDATE
-router.put('/:id', async (req, res) => {
+// UPDATE (admin only)
+router.put('/:id', requireAdmin, async (req, res) => {
   const { data, error } = await supabase
     .from('researchers')
     .update(req.body)
@@ -47,8 +48,8 @@ router.put('/:id', async (req, res) => {
   res.json(data[0]);
 });
 
-// DELETE
-router.delete('/:id', async (req, res) => {
+// DELETE (admin only)
+router.delete('/:id', requireAdmin, async (req, res) => {
   const { error } = await supabase
     .from('researchers')
     .delete()
