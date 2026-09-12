@@ -1,120 +1,441 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+
 import BackButton from "../components/BackButton";
-import { Link, useSearchParams } from "react-router-dom";
 import { useApiData } from "../hooks/useApiData";
-import { getResearchAreas, getResearchArea } from "../api/researchAreas";
+import {
+  getResearchAreas,
+  getResearchArea,
+} from "../api/researchAreas";
+
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 
 export default function ResearchAreas() {
-  const areasState = useApiData(() => getResearchAreas(), []);
+  const detailRef = useRef(null);
   const [params, setParams] = useSearchParams();
-  const areaIdParam = params.get("area");
-  const [activeAreaId, setActiveAreaId] = useState(areaIdParam || null);
 
-  // Deep-linking support: a research-area tag clicked from anywhere else in
-  // the app (researcher cards, project cards, profile pages) lands here
-  // with ?area=<id> and opens straight to that area's real, DB-backed detail.
-  useEffect(() => {
-    setActiveAreaId(areaIdParam || null);
-  }, [areaIdParam]);
+  // The URL is now the single source of truth.
+  const selectedAreaId = params.get("area");
+
+  // Load all areas
+  const areasState = useApiData(
+    () => getResearchAreas(),
+    []
+  );
+
+  // Load selected area's connected data
+  const detailState = useApiData(
+    () =>
+      selectedAreaId
+        ? getResearchArea(selectedAreaId)
+        : Promise.resolve(null),
+    [selectedAreaId]
+  );
 
   const areas = areasState.data?.data || [];
+  const activeArea = detailState.data?.data || null;
+  useEffect(() => {
+  if (!selectedAreaId || !activeArea || detailState.loading) {
+    return;
+  }
 
-  // Fetches the one area's linked projects & researchers directly from the
-  // database via the junction tables — no client-side string matching.
-  const detailState = useApiData(
-    () => (activeAreaId ? getResearchArea(activeAreaId) : Promise.resolve(null)),
-    [activeAreaId]
-  );
-  const activeArea = detailState.data?.data;
+  const timer = setTimeout(() => {
+    detailRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 100);
+
+  return () => clearTimeout(timer);
+}, [selectedAreaId, activeArea, detailState.loading]);
 
   function selectArea(id) {
-    const next = activeAreaId === id ? null : id;
-    setActiveAreaId(next);
-    setParams(next ? { area: next } : {});
+    const idString = String(id);
+
+    if (selectedAreaId === idString) {
+      setParams({});
+    } else {
+      setParams({ area: idString });
+    }
   }
 
   return (
-    <div className="page-container">
+    <div className="research-areas-page">
       <BackButton />
-      <h1>Research Areas &amp; Groups</h1>
-      <p className="detail-lead">
-        Browse the structured research taxonomy and see who's working in each
-        area, and which projects fall under it.
-      </p>
 
-      {areasState.loading && <LoadingState count={6} />}
-      {areasState.error && <ErrorState onRetry={areasState.reload} />}
-      {!areasState.loading && !areasState.error && areas.length === 0 && (
-        <EmptyState message="No research areas configured yet." />
-      )}
+      {/* HEADER */}
+      <header className="research-areas-header">
+        <div>
+          <p className="section-eyebrow">RESEARCH DIRECTORY</p>
 
-      {!areasState.loading && !areasState.error && areas.length > 0 && (
-        <div className="card-grid card-grid-4">
-          {areas.map((area) => (
-            <button
-              key={area.id}
-              className={
-                activeAreaId === String(area.id)
-                  ? "area-chip area-chip-active"
-                  : "area-chip"
-              }
-              onClick={() => selectArea(String(area.id))}
-            >
-              {area.name}
-            </button>
-          ))}
+          <h1>Research Areas</h1>
+
+          <p className="research-areas-intro">
+            Explore the research themes within the R&amp;D ecosystem
+            and discover the people, projects, publications and
+            activities connected to each area.
+          </p>
         </div>
-      )}
 
-      {activeAreaId && (
-        <div className="section" style={{ padding: "2rem 0" }}>
-          {detailState.loading && <LoadingState count={2} />}
-          {detailState.error && <ErrorState onRetry={detailState.reload} />}
+        {!areasState.loading && areas.length > 0 && (
+          <span className="research-area-count">
+            {areas.length} areas
+          </span>
+        )}
+      </header>
 
-          {!detailState.loading && !detailState.error && activeArea && (
-            <>
-              <h2>{activeArea.name}</h2>
-              {activeArea.description && (
-                <p className="detail-lead">{activeArea.description}</p>
-              )}
+      {/* AREA INDEX */}
+      <section className="research-area-index">
+        <div className="research-area-index-header">
+          <div>
+            <p className="section-eyebrow">BROWSE</p>
+            <h2>Research Areas</h2>
+          </div>
 
-              <h3>Projects</h3>
-              {!activeArea.projects || activeArea.projects.length === 0 ? (
-                <EmptyState message="No projects tagged with this area yet." />
-              ) : (
-                <div className="related-list">
-                  {activeArea.projects.map((p) => (
-                    <Link key={p.id} to={`/projects/${p.id}`} className="related-item">
-                      <h4>{p.title}</h4>
-                      {p.status && <p className="muted">Status: {p.status}</p>}
-                    </Link>
-                  ))}
-                </div>
-              )}
+          <span>
+            Select an area to explore its connections
+          </span>
+        </div>
 
-              <h3>Researchers</h3>
-              {!activeArea.researchers || activeArea.researchers.length === 0 ? (
-                <EmptyState message="No researchers tagged with this area yet." />
-              ) : (
-                <div className="card-grid card-grid-4">
-                  {activeArea.researchers.map((r) => (
-                    <Link
-                      key={r.id}
-                      to={`/researchers/${r.id}`}
-                      className="related-item"
-                    >
-                      <h4>{r.name}</h4>
-                      {r.position && <p className="muted">{r.position}</p>}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </>
+        {areasState.loading && (
+          <LoadingState count={6} />
+        )}
+
+        {areasState.error && (
+          <ErrorState onRetry={areasState.reload} />
+        )}
+
+        {!areasState.loading &&
+          !areasState.error &&
+          areas.length === 0 && (
+            <EmptyState message="No research areas configured yet." />
           )}
-        </div>
+
+        {!areasState.loading &&
+          !areasState.error &&
+          areas.length > 0 && (
+            <div className="research-area-list">
+              {areas.map((area, index) => {
+                const isActive =
+                  selectedAreaId === String(area.id);
+
+                return (
+                  <button
+                    key={area.id}
+                    type="button"
+                    className={
+                      isActive
+                        ? "research-area-row active"
+                        : "research-area-row"
+                    }
+                    onClick={() => selectArea(area.id)}
+                  >
+                    <span className="research-area-number">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+
+                    <span className="research-area-name">
+                      {area.name}
+                    </span>
+
+                    <span className="research-area-description">
+                      {area.description ||
+                        "Explore research connected to this area."}
+                    </span>
+
+                    <span className="research-area-arrow">
+                      {isActive ? "−" : "→"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+      </section>
+
+      {/* SELECTED AREA */}
+      {selectedAreaId && (
+        <section
+  ref={detailRef}
+  className="research-area-detail"
+>
+          {detailState.loading && (
+            <LoadingState count={3} />
+          )}
+
+          {detailState.error && (
+            <ErrorState onRetry={detailState.reload} />
+          )}
+
+          {!detailState.loading &&
+            !detailState.error &&
+            activeArea && (
+              <>
+                {/* AREA HEADER */}
+                <header className="research-area-detail-header">
+                  <div>
+                    <p className="section-eyebrow">
+                      RESEARCH AREA
+                    </p>
+
+                    <h2>{activeArea.name}</h2>
+
+                    {activeArea.description && (
+                      <p>{activeArea.description}</p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="research-area-close"
+                    onClick={() => setParams({})}
+                  >
+                    Close
+                  </button>
+                </header>
+
+                <div className="research-area-connections">
+
+                  {/* PROJECTS */}
+                  <div className="research-connection-block">
+                    <div className="research-connection-heading">
+                      <div>
+                        <p className="section-eyebrow">
+                          CONNECTED WORK
+                        </p>
+                        <h3>Projects</h3>
+                      </div>
+
+                      <span>
+                        {activeArea.projects?.length || 0}
+                      </span>
+                    </div>
+
+                    {!activeArea.projects?.length ? (
+                      <EmptyState message="No projects tagged with this area yet." />
+                    ) : (
+                      <div className="research-connection-list">
+                        {activeArea.projects.map((project) => (
+                          <Link
+                            key={project.id}
+                            to={`/projects/${project.id}`}
+                            className="research-connection-item"
+                          >
+                            <div>
+                              <span className="connection-type">
+                                PROJECT
+                              </span>
+
+                              <h4>{project.title}</h4>
+
+                              {project.description && (
+                                <p>{project.description}</p>
+                              )}
+                            </div>
+
+                            <span className="connection-arrow">
+                              →
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* RESEARCHERS */}
+                  <div className="research-connection-block">
+                    <div className="research-connection-heading">
+                      <div>
+                        <p className="section-eyebrow">
+                          PEOPLE
+                        </p>
+                        <h3>Researchers</h3>
+                      </div>
+
+                      <span>
+                        {activeArea.researchers?.length || 0}
+                      </span>
+                    </div>
+
+                    {!activeArea.researchers?.length ? (
+                      <EmptyState message="No researchers tagged with this area yet." />
+                    ) : (
+                      <div className="research-people-list">
+                        {activeArea.researchers.map((researcher) => (
+                          <Link
+                            key={researcher.id}
+                            to={`/researchers/${researcher.id}`}
+                            className="research-person-item"
+                          >
+                            <div>
+                              <span className="connection-type">
+                                RESEARCHER
+                              </span>
+
+                              <h4>{researcher.name}</h4>
+
+                              {researcher.position && (
+                                <p>{researcher.position}</p>
+                              )}
+                            </div>
+
+                            <span className="connection-arrow">
+                              →
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* PUBLICATIONS */}
+                  <div className="research-connection-block">
+                    <div className="research-connection-heading">
+                      <div>
+                        <p className="section-eyebrow">
+                          RESEARCH OUTPUT
+                        </p>
+                        <h3>Publications</h3>
+                      </div>
+
+                      <span>
+                        {activeArea.publications?.length || 0}
+                      </span>
+                    </div>
+
+                    {!activeArea.publications?.length ? (
+                      <EmptyState message="No publications connected to this area yet." />
+                    ) : (
+                      <div className="research-connection-list">
+                        {activeArea.publications.map((publication) => (
+                          <Link
+                            key={publication.id}
+                            to={`/publications/${publication.id}`}
+                            className="research-connection-item"
+                          >
+                            <div>
+                              <span className="connection-type">
+                                PUBLICATION
+                              </span>
+
+                              <h4>{publication.title}</h4>
+
+                              {publication.description && (
+                                <p>{publication.description}</p>
+                              )}
+                            </div>
+
+                            <span className="connection-arrow">
+                              →
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* EVENTS */}
+                  <div className="research-connection-block">
+                    <div className="research-connection-heading">
+                      <div>
+                        <p className="section-eyebrow">
+                          ACTIVITY
+                        </p>
+                        <h3>Events</h3>
+                      </div>
+
+                      <span>
+                        {activeArea.events?.length || 0}
+                      </span>
+                    </div>
+
+                    {!activeArea.events?.length ? (
+                      <EmptyState message="No events connected to this area yet." />
+                    ) : (
+                      <div className="research-connection-list">
+                        {activeArea.events.map((event) => (
+                          <Link
+                            key={event.id}
+                            to={`/events/${event.id}`}
+                            className="research-connection-item"
+                          >
+                            <div>
+                              <span className="connection-type">
+                                EVENT
+                              </span>
+
+                              <h4>{event.title}</h4>
+
+                              {event.start_at && (
+                                <p>
+                                  {new Date(
+                                    event.start_at
+                                  ).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+
+                            <span className="connection-arrow">
+                              →
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* GRANTS */}
+                  <div className="research-connection-block">
+                    <div className="research-connection-heading">
+                      <div>
+                        <p className="section-eyebrow">
+                          FUNDING
+                        </p>
+                        <h3>Grants</h3>
+                      </div>
+
+                      <span>
+                        {activeArea.grants?.length || 0}
+                      </span>
+                    </div>
+
+                    {!activeArea.grants?.length ? (
+                      <EmptyState message="No grants connected to this area yet." />
+                    ) : (
+                      <div className="research-connection-list">
+                        {activeArea.grants.map((grant) => (
+                          <Link
+                            key={grant.id}
+                            to={`/opportunities/${grant.id}`}
+                            className="research-connection-item"
+                          >
+                            <div>
+                              <span className="connection-type">
+                                GRANT
+                              </span>
+
+                              <h4>{grant.title}</h4>
+
+                              {grant.description && (
+                                <p>{grant.description}</p>
+                              )}
+                            </div>
+
+                            <span className="connection-arrow">
+                              →
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </>
+            )}
+        </section>
       )}
     </div>
   );
