@@ -92,7 +92,51 @@ function CrudPage({resource,title,fields,columns,searchable}){
  return <Page title={title}><div className="manage-head"><div className="search-box">⌕<input value={query} onChange={e=>setQuery(e.target.value)} placeholder={`Search by ${searchable}...`}/></div><button className="primary" onClick={()=>setModal({})}>＋ New {title.replace(/s$/,'')}</button></div>{error&&<div className="error page-error">{error}</div>}<section className="table-panel"><div className="table-wrap"><table><thead><tr>{columns.map(([,label])=><th key={label}>{label}</th>)}<th>Actions</th></tr></thead><tbody>{loading?<tr><td colSpan={columns.length+1} className="empty">Loading…</td></tr>:filtered.length===0?<tr><td colSpan={columns.length+1} className="empty">No records found.</td></tr>:filtered.map(row=><tr key={row.id}>{columns.map(([key])=><td key={key}>{key.includes('status')?<Status value={row[key]}/>:formatValue(row[key])}</td>)}<td className="actions"><button onClick={()=>setModal(row)} aria-label="Edit">✎</button><button onClick={()=>remove(row.id)} aria-label="Delete">⌫</button></td></tr>)}</tbody></table></div></section>{modal&&<Modal title={modal.id?`Edit ${title.replace(/s$/,'')}`:`New ${title.replace(/s$/,'')}`} fields={fields} initial={modal} onClose={()=>setModal(null)} onSave={save} saving={saving}/>}</Page>
 }
 
-function Modal({title,fields,initial,onClose,onSave,saving}){const [values,setValues]=useState(()=>Object.fromEntries(fields.map(([k])=>[k,initial[k]??''])));const change=(k,v)=>setValues(x=>({...x,[k]:v}));return <div className="overlay"><div className="modal"><div className="modal-head"><h2>{title}</h2><button onClick={onClose}>×</button></div><div className="form-grid">{fields.map(([key,label,type,requiredOrOptions])=>{const options=type==='select'?requiredOrOptions:[];const isPublishStepper=key==='content_status'&&options.includes('preview');return <label key={key} className={type==='textarea'||isPublishStepper?'wide':''}>{label}{isPublishStepper?<div className="status-stepper">{options.map((o,i)=><React.Fragment key={o}>{i>0&&i<=2&&<span className="step-arrow">→</span>}<button type="button" className={`step-btn${values[key]===o?' active':''}${o==='archived'?' step-btn-muted':''}`} onClick={()=>change(key,o)}>{o}</button></React.Fragment>)}</div>:type==='select'?<select value={values[key]??''} onChange={e=>change(key,e.target.value)}><option value="">Select…</option>{options.map(o=><option key={o} value={o}>{o}</option>)}</select>:type==='textarea'?<textarea value={values[key]??''} required={requiredOrOptions===true} onChange={e=>change(key,e.target.value)}/>:<input type={type} value={values[key]??''} required={requiredOrOptions===true} onChange={e=>change(key,e.target.value)}/>}</label>})}</div><div className="modal-actions"><button className="secondary" onClick={onClose}>Cancel</button><button className="primary" onClick={()=>onSave(clean(values))} disabled={saving}>{saving?'Saving…':'Save changes'}</button></div></div></div>}
+function Modal({title,fields,initial,onClose,onSave,saving}){
+  const isPublishFlow=fields.some(([k,,type,opts])=>k==='content_status'&&type==='select'&&Array.isArray(opts)&&opts.includes('preview'));
+  const [values,setValues]=useState(()=>Object.fromEntries(fields.map(([k])=>[k,initial[k]??''])));
+  const [step,setStep]=useState('edit'); // 'edit' | 'preview'
+  const change=(k,v)=>setValues(x=>({...x,[k]:v}));
+  const editFields=isPublishFlow?fields.filter(([k])=>k!=='content_status'):fields;
+  const renderControl=(key,label,type,requiredOrOptions)=>{
+    const options=type==='select'?requiredOrOptions:[];
+    if(type==='select') return <select value={values[key]??''} onChange={e=>change(key,e.target.value)}><option value="">Select…</option>{options.map(o=><option key={o} value={o}>{o}</option>)}</select>;
+    if(type==='textarea') return <textarea value={values[key]??''} required={requiredOrOptions===true} onChange={e=>change(key,e.target.value)}/>;
+    return <input type={type} value={values[key]??''} required={requiredOrOptions===true} onChange={e=>change(key,e.target.value)}/>;
+  };
+  const saveWithStatus=(status)=>onSave(clean({...values,...(isPublishFlow?{content_status:status}:{})}));
+  return <div className="overlay"><div className="modal">
+    <div className="modal-head"><h2>{title}</h2><button onClick={onClose}>×</button></div>
+    {isPublishFlow&&<div className="flow-steps">
+      <span className={`flow-step${step==='edit'?' active':' done'}`}>1. Draft</span>
+      <span className="flow-arrow">→</span>
+      <span className={`flow-step${step==='preview'?' active':''}`}>2. Preview</span>
+      <span className="flow-arrow">→</span>
+      <span className="flow-step">3. Publish</span>
+    </div>}
+    {step==='edit'&&<div className="form-grid">{editFields.map(([key,label,type,requiredOrOptions])=>
+      <label key={key} className={type==='textarea'?'wide':''}>{label}{renderControl(key,label,type,requiredOrOptions)}</label>
+    )}</div>}
+    {step==='preview'&&isPublishFlow&&<div className="preview-panel">
+      <div className="preview-banner">Previewing how this record will look. It will not be visible publicly until you publish it.</div>
+      {editFields.map(([key,label])=>values[key]?<div className="preview-row" key={key}><b>{label}</b><span>{String(values[key])}</span></div>:null)}
+    </div>}
+    <div className="modal-actions">
+      {isPublishFlow?(step==='edit'?<>
+        <button className="secondary" onClick={onClose}>Cancel</button>
+        <button className="secondary" onClick={()=>saveWithStatus('draft')} disabled={saving}>{saving?'Saving…':'Save as draft'}</button>
+        <button className="primary" onClick={()=>setStep('preview')}>Preview →</button>
+      </>:<>
+        <button className="secondary" onClick={()=>setStep('edit')}>← Back to edit</button>
+        <button className="secondary" onClick={()=>saveWithStatus('preview')} disabled={saving}>{saving?'Saving…':'Save as preview'}</button>
+        <button className="primary" onClick={()=>saveWithStatus('published')} disabled={saving}>{saving?'Publishing…':'Publish'}</button>
+      </>):<>
+        <button className="secondary" onClick={onClose}>Cancel</button>
+        <button className="primary" onClick={()=>onSave(clean(values))} disabled={saving}>{saving?'Saving…':'Save changes'}</button>
+      </>}
+    </div>
+  </div></div>;
+}
 
 function clean(obj){const out={...obj};Object.keys(out).forEach(k=>{if(out[k]==='')out[k]=null; if(['department_id','lead_researcher_id','publication_year','parent_area_id','research_area_id'].includes(k)&&out[k]!==null)out[k]=Number(out[k])});return out}
 function formatValue(v){if(v===null||v===undefined||v==='')return '—';const s=String(v);return s.length>70?s.slice(0,70)+'…':s}
