@@ -7,17 +7,15 @@ import logo from './pages/logo.png';
 import './styles.css';
 
 const NAV = [
-  ['Dashboard','/','▦'],
-  ['Researchers','/researchers','♙'],
-  ['Projects','/projects','□'],
-  ['Publications','/publications','✎'],
-  ['Meetings','/meetings','▤'],
-  ['Events','/events','□'],
-  ['Opportunities','/grants','☆'],
+  ['Dashboard', '/', '▦'],
+  ['Researchers', '/researchers', '♙'],
+  ['Projects', '/projects', '□'],
+  ['Publications', '/publications', '✎'],
+  ['Meetings', '/meetings', '▤'],
+  ['Events', '/events', '□'],
+  ['Opportunities', '/grants', '☆'],
 ];
 
-// Each entry:
-// [resource, path, icon, title, fields, columns, searchable]
 const MANAGEMENT = [
   [
     'research-areas',
@@ -103,7 +101,6 @@ function SetupScreen() {
   return (
     <div className="center-screen">
       <div className="login-card">
-
         <div className="brand-mark">
           <img src={logo} alt="Logo" />
         </div>
@@ -126,16 +123,17 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const submit = async (e) => {
+  const submit = async e => {
     e.preventDefault();
 
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { error } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
     if (error) {
       setError(error.message);
@@ -146,9 +144,7 @@ function Login() {
 
   return (
     <div className="center-screen">
-
       <form className="login-card" onSubmit={submit}>
-
         <div className="brand-mark">
           <img src={logo} alt="Logo" />
         </div>
@@ -162,7 +158,6 @@ function Login() {
 
         <label>
           Email
-
           <input
             value={email}
             onChange={e => setEmail(e.target.value)}
@@ -173,7 +168,6 @@ function Login() {
 
         <label>
           Password
-
           <input
             value={password}
             onChange={e => setPassword(e.target.value)}
@@ -194,7 +188,6 @@ function Login() {
         >
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
-
       </form>
     </div>
   );
@@ -203,21 +196,27 @@ function Login() {
 function Shell({ session }) {
   const [mobile, setMobile] = useState(false);
 
-  const signOut = () => supabase.auth.signOut();
+  const signOut = () =>
+    supabase.auth.signOut();
 
   return (
     <div className="app">
-
-      <aside className={mobile ? 'sidebar open' : 'sidebar'}>
-
+      <aside
+        className={
+          mobile
+            ? 'sidebar open'
+            : 'sidebar'
+        }
+      >
         <div className="brand">
-
           <div className="brand-logo">
             <img src={logo} alt="Logo" />
           </div>
 
-          
-
+          <div>
+            <strong>Islington College</strong>
+            <span>Research & Development</span>
+          </div>
         </div>
 
         <div className="divider" />
@@ -273,16 +272,15 @@ function Shell({ session }) {
         >
           ↪ Sign out
         </button>
-
       </aside>
 
       <main className="main">
-
         <header className="topbar">
-
           <button
             className="menu"
-            onClick={() => setMobile(!mobile)}
+            onClick={() =>
+              setMobile(!mobile)
+            }
           >
             ☰
           </button>
@@ -295,11 +293,9 @@ function Shell({ session }) {
           <div className="user-chip">
             {session.user.email}
           </div>
-
         </header>
 
         <Routes>
-
           <Route
             path="/"
             element={<Dashboard />}
@@ -400,9 +396,7 @@ function Shell({ session }) {
               />
             )
           )}
-
         </Routes>
-
       </main>
     </div>
   );
@@ -684,94 +678,32 @@ const statisticColumns = [
   ['category', 'Category']
 ];
 
-const ACTIVITY_KEY = 'rnd-hub-activity-log';
+function ActivityLog() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-const ACTIVITY_SEED = [
-  {
-    id: 'seed-project',
-    action: 'Project created',
-    detail:
-      'Project records are now tracked in the admin hub.'
-  },
-  {
-    id: 'seed-researcher',
-    action: 'Researcher added',
-    detail:
-      'Researcher management is connected to the project workspace.'
-  },
-  {
-    id: 'seed-publication',
-    action: 'Publication linked',
-    detail:
-      'A publication was linked to a project.'
-  },
-  {
-    id: 'seed-grant',
-    action: 'Grant linked',
-    detail:
-      'A funding opportunity was linked to a project.'
-  },
-];
+  const loadActivity = async () => {
+    setLoading(true);
+    setError('');
 
-function getActivityLog() {
-  try {
-    const stored = JSON.parse(
-      localStorage.getItem(ACTIVITY_KEY) || 'null'
-    );
-
-    return Array.isArray(stored) && stored.length
-      ? stored
-      : ACTIVITY_SEED;
-  } catch {
-    return ACTIVITY_SEED;
-  }
-}
-
-function addActivity(action, detail) {
-  const entry = {
-    id: `activity-${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2)}`,
-    action,
-    detail,
-    at: new Date().toISOString()
+    try {
+      const data = await api.list('activity-log');
+      setItems(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setError(e.message);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const next = [
-    entry,
-    ...getActivityLog()
-  ].slice(0, 50);
-
-  localStorage.setItem(
-    ACTIVITY_KEY,
-    JSON.stringify(next)
-  );
-}
-
-function ActivityLog() {
-  const [items, setItems] = useState(
-    () => getActivityLog()
-  );
-
   useEffect(() => {
-    const onStorage = () =>
-      setItems(getActivityLog());
-
-    window.addEventListener(
-      'storage',
-      onStorage
-    );
-
-    return () =>
-      window.removeEventListener(
-        'storage',
-        onStorage
-      );
+    loadActivity();
   }, []);
 
   return (
     <section className="panel activity-panel">
-
       <div className="panel-title">
         <h2>Activity Log</h2>
         <span className="muted">
@@ -779,7 +711,13 @@ function ActivityLog() {
         </span>
       </div>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <Empty text="Loading activity…" />
+      ) : error ? (
+        <div className="error">
+          {error}
+        </div>
+      ) : items.length === 0 ? (
         <Empty text="No activity recorded yet." />
       ) : (
         items.map(item => (
@@ -790,14 +728,17 @@ function ActivityLog() {
             <span className="activity-dot" />
 
             <span>
-              <b>{item.action}</b>
+              <b>
+                {item.action || 'Activity'}
+              </b>
 
               <small>
-                {item.detail}
+                {item.description ||
+                  'No description provided.'}
 
-                {item.at
+                {item.created_at
                   ? ` · ${new Date(
-                      item.at
+                      item.created_at
                     ).toLocaleString()}`
                   : ''}
               </small>
@@ -805,7 +746,6 @@ function ActivityLog() {
           </div>
         ))
       )}
-
     </section>
   );
 }
@@ -882,9 +822,7 @@ function Dashboard() {
 
   return (
     <Page title="Dashboard">
-
       <div className="stats">
-
         {cards.map(([label, key]) => (
           <div
             className="stat"
@@ -897,13 +835,10 @@ function Dashboard() {
             <span>{label}</span>
           </div>
         ))}
-
       </div>
 
       <div className="dashboard-grid">
-
         <section className="panel">
-
           <div className="panel-title">
             <h2>Needs attention</h2>
 
@@ -939,11 +874,9 @@ function Dashboard() {
               </div>
             ))
           )}
-
         </section>
 
         <section className="panel">
-
           <div className="panel-title">
             <h2>Recent records</h2>
           </div>
@@ -971,11 +904,8 @@ function Dashboard() {
               </div>
             ))
           )}
-
         </section>
-
       </div>
-
     </Page>
   );
 }
@@ -1050,7 +980,6 @@ function MeetingsPage() {
 
     try {
       const t = await token();
-      const wasNew = !values.id;
 
       const payload = {
         project_id:
@@ -1082,15 +1011,6 @@ function MeetingsPage() {
         );
       }
 
-      if (wasNew) {
-        addActivity(
-          'Meeting added',
-          `${
-            values.title || 'Meeting'
-          } was added to the project workspace.`
-        );
-      }
-
       setMeetingModal(null);
       await load();
     } catch (e) {
@@ -1105,14 +1025,6 @@ function MeetingsPage() {
 
     try {
       const t = await token();
-
-      const wasCompleted =
-        values.status === 'completed';
-
-      const previous =
-        actions.find(
-          x => x.id === values.id
-        );
 
       const payload = {
         task:
@@ -1142,17 +1054,6 @@ function MeetingsPage() {
           'meetings/action-items',
           payload,
           t
-        );
-      }
-
-      if (
-        wasCompleted &&
-        previous?.status !== 'completed'
-      ) {
-        addActivity(
-          'Action item completed',
-          values.task ||
-            'An action item was completed.'
         );
       }
 
@@ -1198,9 +1099,7 @@ function MeetingsPage() {
 
   return (
     <Page title="Meetings">
-
       <div className="meeting-tabs">
-
         <button
           className={
             tab === 'meetings'
@@ -1241,7 +1140,6 @@ function MeetingsPage() {
         >
           Activity Log
         </button>
-
       </div>
 
       {error && (
@@ -1308,7 +1206,6 @@ function MeetingsPage() {
           saving={saving}
         />
       )}
-
     </Page>
   );
 }
@@ -1321,9 +1218,7 @@ function MeetingsSection({
 }) {
   return (
     <>
-
       <div className="manage-head">
-
         <div>
           <p className="section-kicker">
             PROJECT COLLABORATION
@@ -1340,15 +1235,11 @@ function MeetingsSection({
         >
           ＋ Create meeting
         </button>
-
       </div>
 
       <section className="table-panel">
-
         <div className="table-wrap">
-
           <table>
-
             <thead>
               <tr>
                 <th>Date</th>
@@ -1360,7 +1251,6 @@ function MeetingsSection({
             </thead>
 
             <tbody>
-
               {meetings.length === 0 ? (
                 <tr>
                   <td
@@ -1373,7 +1263,6 @@ function MeetingsSection({
               ) : (
                 meetings.map(m => (
                   <tr key={m.id}>
-
                     <td>
                       {m.meeting_date
                         ? new Date(
@@ -1408,7 +1297,6 @@ function MeetingsSection({
                     </td>
 
                     <td className="actions">
-
                       <button
                         onClick={() =>
                           onEdit(m)
@@ -1426,21 +1314,14 @@ function MeetingsSection({
                       >
                         ⌫
                       </button>
-
                     </td>
-
                   </tr>
                 ))
               )}
-
             </tbody>
-
           </table>
-
         </div>
-
       </section>
-
     </>
   );
 }
@@ -1453,9 +1334,7 @@ function ActionItemsSection({
 }) {
   return (
     <>
-
       <div className="manage-head">
-
         <div>
           <p className="section-kicker">
             FOLLOW-UP
@@ -1472,15 +1351,11 @@ function ActionItemsSection({
         >
           ＋ New action item
         </button>
-
       </div>
 
       <section className="table-panel">
-
         <div className="table-wrap">
-
           <table>
-
             <thead>
               <tr>
                 <th>Task</th>
@@ -1492,7 +1367,6 @@ function ActionItemsSection({
             </thead>
 
             <tbody>
-
               {actions.length === 0 ? (
                 <tr>
                   <td
@@ -1505,7 +1379,6 @@ function ActionItemsSection({
               ) : (
                 actions.map(a => (
                   <tr key={a.id}>
-
                     <td>
                       {formatValue(
                         a.task
@@ -1533,7 +1406,6 @@ function ActionItemsSection({
                     </td>
 
                     <td className="actions">
-
                       <button
                         onClick={() =>
                           onEdit(a)
@@ -1551,21 +1423,14 @@ function ActionItemsSection({
                       >
                         ⌫
                       </button>
-
                     </td>
-
                   </tr>
                 ))
               )}
-
             </tbody>
-
           </table>
-
         </div>
-
       </section>
-
     </>
   );
 }
@@ -1622,7 +1487,6 @@ function MeetingModal({
 
   const loadProjectParticipants =
     async projectId => {
-
       if (!projectId) {
         setParticipantList([]);
         setParticipantError('');
@@ -1694,9 +1558,7 @@ function MeetingModal({
                 )
             )
         }));
-
       } catch (e) {
-
         setParticipantError(
           e.message
         );
@@ -1707,7 +1569,6 @@ function MeetingModal({
           ...s,
           participants: []
         }));
-
       } finally {
         setLoadingParticipants(false);
       }
@@ -1726,7 +1587,6 @@ function MeetingModal({
 
   const chooseProject =
     projectId => {
-
       setV(s => ({
         ...s,
         project_id: projectId,
@@ -1740,11 +1600,8 @@ function MeetingModal({
 
   return (
     <div className="overlay">
-
       <div className="modal">
-
         <div className="modal-head">
-
           <div>
             <p className="section-kicker">
               MEETING
@@ -1760,11 +1617,9 @@ function MeetingModal({
           <button onClick={onClose}>
             ×
           </button>
-
         </div>
 
         <div className="form-grid">
-
           <label>
             Project
 
@@ -1843,13 +1698,11 @@ function MeetingModal({
               </div>
             ) : (
               <div className="check-grid">
-
                 {participantList.map(r => (
                   <label
                     className="check-item"
                     key={r.id}
                   >
-
                     <input
                       type="checkbox"
                       checked={v.participants
@@ -1875,10 +1728,8 @@ function MeetingModal({
                     />
 
                     {r.name}
-
                   </label>
                 ))}
-
               </div>
             )}
           </label>
@@ -1912,11 +1763,9 @@ function MeetingModal({
               placeholder="Meeting notes and decisions…"
             />
           </label>
-
         </div>
 
         <div className="modal-actions">
-
           <button
             className="secondary"
             onClick={onClose}
@@ -1935,11 +1784,8 @@ function MeetingModal({
               ? 'Saving…'
               : 'Save meeting'}
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 }
@@ -1977,11 +1823,8 @@ function ActionModal({
 
   return (
     <div className="overlay">
-
       <div className="modal">
-
         <div className="modal-head">
-
           <div>
             <p className="section-kicker">
               FOLLOW-UP
@@ -1997,11 +1840,9 @@ function ActionModal({
           <button onClick={onClose}>
             ×
           </button>
-
         </div>
 
         <div className="form-grid">
-
           <label className="wide">
             Task
 
@@ -2148,11 +1989,9 @@ function ActionModal({
               ))}
             </select>
           </label>
-
         </div>
 
         <div className="modal-actions">
-
           <button
             className="secondary"
             onClick={onClose}
@@ -2171,11 +2010,8 @@ function ActionModal({
               ? 'Saving…'
               : 'Save action item'}
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 }
@@ -2265,34 +2101,10 @@ function CrudPage({
           values,
           token
         );
-
-        const activityMap = {
-          projects:
-            'Project created',
-          researchers:
-            'Researcher added',
-          publications:
-            'Publication linked',
-          grants:
-            'Grant linked'
-        };
-
-        if (
-          activityMap[resource]
-        ) {
-          addActivity(
-            activityMap[resource],
-            `${title.replace(
-              /s$/,
-              ''
-            )} record added.`
-          );
-        }
       }
 
       setModal(null);
       await load();
-
     } catch (e) {
       setError(e.message);
     } finally {
@@ -2327,7 +2139,6 @@ function CrudPage({
           x => x.id !== id
         )
       );
-
     } catch (e) {
       setError(e.message);
     }
@@ -2335,9 +2146,7 @@ function CrudPage({
 
   return (
     <Page title={title}>
-
       <div className="manage-head">
-
         <div className="search-box">
           ⌕
 
@@ -2364,7 +2173,6 @@ function CrudPage({
             ''
           )}
         </button>
-
       </div>
 
       {error && (
@@ -2374,15 +2182,10 @@ function CrudPage({
       )}
 
       <section className="table-panel">
-
         <div className="table-wrap">
-
           <table>
-
             <thead>
-
               <tr>
-
                 {columns.map(
                   ([, label]) => (
                     <th key={label}>
@@ -2394,13 +2197,10 @@ function CrudPage({
                 <th>
                   Actions
                 </th>
-
               </tr>
-
             </thead>
 
             <tbody>
-
               {loading ? (
                 <tr>
                   <td
@@ -2426,11 +2226,9 @@ function CrudPage({
               ) : (
                 filtered.map(row => (
                   <tr key={row.id}>
-
                     {columns.map(
                       ([key]) => (
                         <td key={key}>
-
                           {key.includes(
                             'status'
                           ) ? (
@@ -2444,13 +2242,11 @@ function CrudPage({
                               row[key]
                             )
                           )}
-
                         </td>
                       )
                     )}
 
                     <td className="actions">
-
                       <button
                         onClick={() =>
                           setModal(row)
@@ -2468,19 +2264,13 @@ function CrudPage({
                       >
                         ⌫
                       </button>
-
                     </td>
-
                   </tr>
                 ))
               )}
-
             </tbody>
-
           </table>
-
         </div>
-
       </section>
 
       {modal && (
@@ -2506,7 +2296,6 @@ function CrudPage({
           resource={resource}
         />
       )}
-
     </Page>
   );
 }
@@ -2562,7 +2351,6 @@ function Modal({
     type,
     requiredOrOptions
   ) => {
-
     const options =
       type === 'select'
         ? requiredOrOptions
@@ -2654,7 +2442,6 @@ function Modal({
 
   const validatePublishFields =
     () => {
-
       const missing =
         publicationRequiredFields
           .filter(([key]) => {
@@ -2690,7 +2477,6 @@ function Modal({
 
   const saveWithStatus =
     status => {
-
       if (
         status === 'published' &&
         !validatePublishFields()
@@ -2712,7 +2498,6 @@ function Modal({
     };
 
   const goToPreview = () => {
-
     if (
       resource === 'publications' &&
       !validatePublishFields()
@@ -2725,22 +2510,17 @@ function Modal({
 
   return (
     <div className="overlay">
-
       <div className="modal">
-
         <div className="modal-head">
-
           <h2>{title}</h2>
 
           <button onClick={onClose}>
             ×
           </button>
-
         </div>
 
         {isPublishFlow && (
           <div className="flow-steps">
-
             <span
               className={
                 `flow-step${
@@ -2776,13 +2556,11 @@ function Modal({
             <span className="flow-step">
               3. Publish
             </span>
-
           </div>
         )}
 
         {step === 'edit' && (
           <div className="form-grid">
-
             {editFields.map(
               ([
                 key,
@@ -2809,14 +2587,12 @@ function Modal({
                 </label>
               )
             )}
-
           </div>
         )}
 
         {step === 'preview' &&
           isPublishFlow && (
             <div className="preview-panel">
-
               <div className="preview-banner">
                 Previewing how this record will look.
                 It will not be visible publicly until
@@ -2840,12 +2616,10 @@ function Modal({
                     </div>
                   ) : null
               )}
-
             </div>
           )}
 
         <div className="modal-actions">
-
           {isPublishFlow ? (
             step === 'edit' ? (
               <>
@@ -2943,11 +2717,8 @@ function Modal({
               </button>
             </>
           )}
-
         </div>
-
       </div>
-
     </div>
   );
 }
@@ -2958,7 +2729,6 @@ function clean(obj) {
   };
 
   Object.keys(out).forEach(k => {
-
     if (out[k] === '') {
       out[k] = null;
     }
@@ -2977,7 +2747,6 @@ function clean(obj) {
         out[k]
       );
     }
-
   });
 
   return out;
@@ -3036,13 +2805,11 @@ function Page({
 }) {
   return (
     <div className="page">
-
       <div className="page-title">
         <h1>{title}</h1>
       </div>
 
       {children}
-
     </div>
   );
 }

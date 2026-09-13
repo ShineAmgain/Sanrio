@@ -14,12 +14,15 @@ const announcementsRoutes = require('./routes/announcements');
 const partnersRoutes = require('./routes/partners');
 const statisticsRoutes = require('./routes/statistics');
 const meetingsRoutes = require('./routes/meetings');
+const activityLogRoutes = require('./routes/activitylog');
+
 
 
 const app = express();
 app.use(cors());
-app.use(express.json());
 
+app.use(express.json());
+app.use('/api/activity-log', activityLogRoutes);
 app.use('/api/researchers', researchersRoutes);
 app.use('/api/projects', projectsRoutes);
 app.use('/api/publications', publicationsRoutes);
