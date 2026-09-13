@@ -5,6 +5,7 @@ import { semanticSearch } from "../api/search";
 import { searchFilters, matchesFilter } from "../routes/routeMap";
 import SearchBar from "../components/SearchBar";
 import SearchResultCard from "../components/SearchResultCard";
+import PageHero from "../components/PageHero";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -28,8 +29,23 @@ export default function Search() {
 
   return (
     <div className="page-container search-page">
-      <h1>Search</h1>
-      <SearchBar initialValue={query} autoFocus />
+      <PageHero
+        accent="pink"
+        kicker="Research & Development / Search"
+        title="Find what you're"
+        accentWord="looking for."
+        description="Search across researchers, projects, publications, events and grants in one place."
+        stat={
+          query && !loading && !error
+            ? {
+                number: String(filteredResults.length).padStart(2, "0"),
+                label: filteredResults.length === 1 ? "Result" : "Results",
+              }
+            : undefined
+        }
+      >
+        <SearchBar initialValue={query} autoFocus />
+      </PageHero>
 
       {query && (
         <>

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useApiData } from "../hooks/useApiData";
 import { getProjects } from "../api/projects";
 import ProjectCard from "../components/ProjectCard";
+import PageHero from "../components/PageHero";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -30,12 +31,17 @@ export default function Projects() {
 
   return (
     <div className="page-container projects-page">
-<div className="projects-page-header">
-  <div>
-    <p className="page-eyebrow">RESEARCH &amp; DEVELOPMENT / PROJECTS</p>
-    <h1>Research Projects</h1>
-  </div>
-
+      <PageHero
+        accent="green"
+        kicker="Research & Development / Projects"
+        title="Ideas in"
+        accentWord="motion."
+        description="Follow the active and completed research projects taking shape across departments, labs and research groups."
+        stat={{
+          number: String(projects.length).padStart(2, "0"),
+          label: projects.length === 1 ? "Project" : "Projects",
+        }}
+      >
         {!loading && !error && areas.length > 0 && (
           <label className="projects-filter">
             <span className="sr-only">Filter projects by research area</span>
@@ -47,7 +53,7 @@ export default function Projects() {
             </select>
           </label>
         )}
-      </div>
+      </PageHero>
 
       {loading && <LoadingState count={6} />}
       {error && <ErrorState onRetry={reload} />}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 const API_BASE = "http://localhost:3000";
+import PageHero from "../components/PageHero";
 
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState([]);
@@ -41,62 +41,44 @@ export default function Announcements() {
     });
   };
 
-  if (loading) {
-    return (
-      <main className="page-shell">
-        <section className="page-header">
-          <p className="section-eyebrow">RESEARCH CELL</p>
-          <h1>Announcements</h1>
-          <p>
-            Stay updated with the latest news, activities and opportunities
-            from the Research Cell.
-          </p>
-        </section>
+  return (
+    <main className="page-container">
+      <PageHero
+        accent="pink"
+        kicker="Research Cell"
+        title="Stay in the"
+        accentWord="loop."
+        description="Stay updated with the latest news, activities and opportunities from the Research Cell."
+        stat={
+          !loading && !error
+            ? {
+                number: String(announcements.length).padStart(2, "0"),
+                label:
+                  announcements.length === 1 ? "Announcement" : "Announcements",
+              }
+            : undefined
+        }
+      />
 
+      {loading && (
         <div className="empty-state">
           <p>Loading announcements...</p>
         </div>
-      </main>
-    );
-  }
+      )}
 
-  if (error) {
-    return (
-      <main className="page-shell">
-        <section className="page-header">
-          <p className="section-eyebrow">RESEARCH CELL</p>
-          <h1>Announcements</h1>
-          <p>
-            Stay updated with the latest news, activities and opportunities
-            from the Research Cell.
-          </p>
-        </section>
-
+      {!loading && error && (
         <div className="empty-state">
           <p>{error}</p>
         </div>
-      </main>
-    );
-  }
+      )}
 
-  return (
-    <main className="page-shell">
-      <section className="page-header">
-        <p className="section-eyebrow">RESEARCH CELL</p>
-
-        <h1>Announcements</h1>
-
-        <p>
-          Stay updated with the latest news, activities and opportunities
-          from the Research Cell.
-        </p>
-      </section>
-
-      {announcements.length === 0 ? (
+      {!loading && !error && announcements.length === 0 && (
         <div className="empty-state">
           <p>No announcements available.</p>
         </div>
-      ) : (
+      )}
+
+      {!loading && !error && announcements.length > 0 && (
         <section className="card-grid card-grid-3">
           {announcements.map((announcement) => (
             <article

@@ -38,12 +38,16 @@ body,
   height: 100%;
 }
 
+html {
+  font-size: 18px;
+}
+
 body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--ink);
   background: var(--bg);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 a {
@@ -232,17 +236,54 @@ select {
 
 .footer-brand {
   display: flex;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.9rem;
   max-width: 320px;
   font-size: 0.85rem;
 }
 
-.footer-links,
+.footer-brand-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
 .footer-social {
   display: flex;
   gap: 1.25rem;
   font-size: 0.85rem;
   flex-wrap: wrap;
+}
+
+.footer-link-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  min-width: 140px;
+}
+
+.footer-links-heading {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.footer-links a:hover {
+  color: #fff;
 }
 
 .footer-bottom {
@@ -295,6 +336,253 @@ select {
 .section-header h2 {
   font-size: 1.5rem;
   color: var(--navy);
+}
+
+
+/* =========================================================
+   PAGE HERO — shared kicker/heading/stat pattern
+   Used by every listing page so the site reads as one
+   consistent design instead of a different header per page.
+   Accent color is set per-page with a modifier class
+   (.page-hero--pink / --blue / --green / --orange / --purple).
+========================================================= */
+
+.page-hero {
+  --hero-accent: var(--accent-pink);
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3rem;
+  padding-bottom: 2.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-hero--blue { --hero-accent: var(--accent-blue); }
+.page-hero--green { --hero-accent: var(--accent-green); }
+.page-hero--orange { --hero-accent: var(--accent-orange); }
+.page-hero--purple { --hero-accent: var(--accent-purple); }
+.page-hero--pink { --hero-accent: var(--accent-pink); }
+
+.page-hero-main {
+  max-width: 720px;
+}
+
+.page-hero-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+
+  color: var(--accent-blue);
+
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.page-hero-kicker-line {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: var(--hero-accent);
+}
+
+.page-hero h1 {
+  margin: 0;
+
+  color: var(--navy);
+
+  font-size: 2.9rem;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+}
+
+.page-hero h1 .accent {
+  color: var(--hero-accent);
+}
+
+.page-hero-description {
+  max-width: 610px;
+  margin: 1.1rem 0 0;
+
+  color: var(--muted);
+
+  font-size: 0.94rem;
+  line-height: 1.75;
+}
+
+.page-hero-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-shrink: 0;
+
+  min-width: 120px;
+  padding: 0.8rem 0 0.8rem 1.2rem;
+
+  border-left: 2px solid var(--hero-accent);
+}
+
+.page-hero-stat-number {
+  color: var(--navy);
+
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.page-hero-stat-label {
+  color: var(--muted);
+
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.page-hero-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.85rem;
+  flex-shrink: 0;
+}
+
+.page-hero-section-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  width: 100%;
+  margin-bottom: 1.4rem;
+}
+
+.page-hero-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  flex-shrink: 0;
+
+  color: var(--navy);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.page-hero-section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 21px;
+  height: 21px;
+
+  background: var(--accent-green-bg);
+  color: var(--accent-green);
+
+  border-radius: 50%;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.page-hero-section-rule {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+}
+
+@media (max-width: 720px) {
+  .page-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .page-hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .page-hero-stat {
+    padding-left: 1rem;
+  }
+
+  .page-hero-controls {
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   GENERIC CARD (announcements, and any other simple article card)
+========================================================= */
+
+.generic-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.generic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(23, 27, 71, 0.08);
+}
+
+.generic-card h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--navy);
+}
+
+.generic-card > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.announcement-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.announcement-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-blue),
+    var(--accent-pink),
+    var(--accent-green),
+    var(--accent-orange)
+  );
+}
+
+.announcement-expiry {
+  font-style: italic;
 }
 
 
@@ -934,18 +1222,30 @@ select {
   position: relative;
 }
 
-.navbar-dropdown summary {
+.navbar-dropdown-trigger {
   cursor: pointer;
-  list-style: none;
+  background: none;
+  border: none;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-.navbar-dropdown summary::-webkit-details-marker {
-  display: none;
-}
-
-.navbar-dropdown[open] summary {
+.navbar-dropdown-trigger[aria-expanded="true"] {
   color: #fff;
   font-weight: 600;
+}
+
+.navbar-dropdown-caret {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.navbar-dropdown-trigger[aria-expanded="true"] .navbar-dropdown-caret {
+  transform: rotate(180deg);
 }
 
 .dropdown-panel {
@@ -1862,7 +2162,7 @@ select {
   max-width: 1320px;
   margin: 18px auto 0;
   padding: 0 20px 0 22px;
-  min-height: 46px;
+  min-height: 58px;
   border-radius: 26px;
   background: var(--reference-navy);
   box-shadow: none;
@@ -1880,54 +2180,54 @@ select {
 
 .navbar-links {
   margin-left: auto;
-  gap: 19px;
+  gap: 22px;
   align-items: center;
 }
 
 .navbar-link {
-  font-size: 10px;
-  font-weight: 400;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .navbar-brand {
-  gap: 6px;
+  gap: 9px;
 }
 
 .brand-swirl {
-  width: 29px;
-  height: 29px;
+  width: 32px;
+  height: 32px;
 }
 
 .brand-text {
-  font-size: 7px;
-  line-height: 1.05;
+  font-size: 11px;
+  line-height: 1.2;
 }
 
 .navbar-search {
-  height: 29px;
-  padding: 0 9px;
+  height: 34px;
+  padding: 0 11px;
   margin-left: 2px;
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.22);
 }
 
 .navbar-search-input {
-  width: 66px;
-  font-size: 9px;
+  width: 76px;
+  font-size: 12px;
 }
 
 .navbar-search-input:focus {
-  width: 120px;
+  width: 130px;
 }
 
 .navbar-search-icon {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
 }
 
 .navbar-notification {
-  width: 29px;
-  height: 29px;
+  width: 34px;
+  height: 34px;
   margin-left: 0;
   color: rgba(255,255,255,.9);
 }
@@ -6696,6 +6996,14 @@ select {
 .researcher-explore-button:hover {
   background: var(--navy-light);
   transform: translateY(-1px);
+}
+
+.researcher-projects-toggle {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 

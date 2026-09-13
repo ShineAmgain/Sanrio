@@ -1,6 +1,7 @@
 import { useApiData } from "../hooks/useApiData";
 import BackButton from "../components/BackButton";
 import { getPartners } from "../api/partners";
+import PageHero from "../components/PageHero";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -21,8 +22,19 @@ export default function Partnerships() {
 
   return (
     <div className="page-container">
-      <BackButton />  
-      <h1>Partnerships &amp; Collaboration</h1>
+      <BackButton />
+
+      <PageHero
+        accent="blue"
+        kicker="Research & Development / Partnerships"
+        title="Better"
+        accentWord="together."
+        description="The organisations, industry partners and institutions collaborating with our research community."
+        stat={{
+          number: String(partners.length).padStart(2, "0"),
+          label: partners.length === 1 ? "Partner" : "Partners",
+        }}
+      />
 
       {loading && <LoadingState count={4} />}
       {error && <ErrorState onRetry={reload} />}

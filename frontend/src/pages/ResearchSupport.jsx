@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useApiData } from "../hooks/useApiData";
 import { getResources } from "../api/resources";
+import PageHero from "../components/PageHero";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -66,32 +67,17 @@ export default function ResearchSupport() {
   return (
     <div className="research-support-page">
 
-      {/* HEADER */}
-      <header className="research-support-header">
-        <div className="research-support-heading">
-
-          <p className="research-page-eyebrow">
-            RESEARCH SUPPORT
-          </p>
-
-          <h1>
-            Tools, guidance
-            <br />
-            &amp; resources.
-          </h1>
-
-          <p className="research-support-intro">
-            Practical resources, workshops and materials
-            supporting research at Islington College.
-          </p>
-
-        </div>
-
-        <div className="research-support-mark">
-          <div className="research-support-mark-line" />
-          <span>R&amp;D</span>
-        </div>
-      </header>
+      <PageHero
+        accent="blue"
+        kicker="Research Support"
+        title="Tools, guidance"
+        accentWord="& resources."
+        description="Practical resources, workshops and materials supporting research at Islington College."
+        stat={{
+          number: String(resources.length).padStart(2, "0"),
+          label: resources.length === 1 ? "Resource" : "Resources",
+        }}
+      />
 
       {/* SEARCH / FILTER */}
       {!loading && !error && resources.length > 0 && (

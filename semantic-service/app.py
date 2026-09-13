@@ -15,7 +15,7 @@ def health():
 
 @app.route("/embed", methods=["POST"])
 def embed():
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
     query = data.get("query")
 

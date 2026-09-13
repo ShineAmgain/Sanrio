@@ -1,6 +1,7 @@
 import { useApiData } from "../hooks/useApiData";
 import { getGrants } from "../api/grants";
 import GrantCard from "../components/GrantCard";
+import PageHero from "../components/PageHero";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -10,17 +11,18 @@ export default function Opportunities() {
   const grants = data?.data || [];
 
   return (
-    <div className="opportunities-page">
-      <div className="opportunities-header">
-        <div>
-          <span className="opportunities-label">RESEARCH & ACADEMIA</span>
-          <h1>Opportunities</h1>
-          <p>
-            Explore grants and funding opportunities that can support research,
-            academic work, and new ideas.
-          </p>
-        </div>
-      </div>
+    <div className="page-container">
+      <PageHero
+        accent="purple"
+        kicker="Research & Academia"
+        title="Fund the"
+        accentWord="future."
+        description="Explore grants and funding opportunities that can support research, academic work, and new ideas."
+        stat={{
+          number: String(grants.length).padStart(2, "0"),
+          label: grants.length === 1 ? "Opportunity" : "Opportunities",
+        }}
+      />
 
       {loading && (
         <div className="opportunities-content">

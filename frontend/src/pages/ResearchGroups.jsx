@@ -5,6 +5,7 @@ import {
   getResearchGroups,
   getResearchGroup,
 } from "../api/researchGroups";
+import PageHero from "../components/PageHero";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -41,34 +42,17 @@ export default function ResearchGroups() {
   return (
     <div className="research-groups-page">
 
-      {/* HEADER */}
-      <header className="research-groups-header">
-
-        <div>
-          <p className="research-page-eyebrow">
-            RESEARCH NETWORK
-          </p>
-
-          <h1>
-            Research Groups
-          </h1>
-
-          <p>
-            Standing research communities connecting
-            people, projects and shared areas of inquiry.
-          </p>
-        </div>
-
-        <div className="research-groups-index">
-          <strong>
-            {groups.length}
-          </strong>
-          <span>
-            groups
-          </span>
-        </div>
-
-      </header>
+      <PageHero
+        accent="purple"
+        kicker="Research Network"
+        title="Stronger"
+        accentWord="together."
+        description="Standing research communities connecting people, projects and shared areas of inquiry."
+        stat={{
+          number: String(groups.length).padStart(2, "0"),
+          label: groups.length === 1 ? "Group" : "Groups",
+        }}
+      />
 
       {groupsState.loading && (
         <LoadingState count={4} />

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import BackButton from "../components/BackButton";
 import { useApiData } from "../hooks/useApiData";
@@ -8,6 +9,7 @@ import EmptyState from "../components/EmptyState";
 
 export default function ResearcherDetail() {
   const { id } = useParams();
+  const [showAllProjects, setShowAllProjects] = useState(false);
 
   const { data, loading, error, reload } = useApiData(
     () => getResearcher(id),
@@ -232,7 +234,7 @@ export default function ResearcherDetail() {
                       No projects listed for this researcher yet.
                     </div>
                   ) : (
-                    projects.slice(0, 3).map((item) => {
+                    (showAllProjects ? projects : projects.slice(0, 3)).map((item) => {
                       const project = item.projects;
 
                       if (!project) return null;
@@ -282,6 +284,19 @@ export default function ResearcherDetail() {
                         </Link>
                       );
                     })
+                  )}
+
+                  {projects.length > 3 && (
+                    <button
+                      type="button"
+                      className="researcher-explore-button researcher-projects-toggle"
+                      onClick={() => setShowAllProjects((prev) => !prev)}
+                    >
+                      {showAllProjects
+                        ? "Show fewer projects"
+                        : `View all ${projects.length} projects`}
+                      <span>{showAllProjects ? "↑" : "→"}</span>
+                    </button>
                   )}
 
                 </div>

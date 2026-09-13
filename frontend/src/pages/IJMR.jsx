@@ -1,5 +1,6 @@
 import { useApiData } from "../hooks/useApiData";
 import { getIjmr } from "../api/ijmr";
+import PageHero from "../components/PageHero";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 
@@ -16,25 +17,15 @@ export default function IJMR() {
 
   return (
     <div className="page-container detail-page">
-      <h1>Islington Journal of Multidisciplinary Research (IJMR)</h1>
+      <PageHero
+        accent="orange"
+        kicker="Research & Development / IJMR"
+        title="Multidisciplinary"
+        accentWord="research."
+        description="The Islington Journal of Multidisciplinary Research (IJMR) is Islington College's peer-reviewed research journal. This hub links out to the journal rather than duplicating its submission or editorial system."
+      />
 
-      <p className="detail-lead">
-        IJMR is Islington College's peer-reviewed multidisciplinary research
-        journal. This hub links out to the journal rather than duplicating
-        its submission or editorial system.
-      </p>
-
-      <div className="detail-actions">
-        <a href={IJMR_URL} target="_blank" rel="noreferrer" className="btn btn-primary">
-          Visit IJMR
-        </a>
-        <a href={`${IJMR_URL}/submit`} target="_blank" rel="noreferrer" className="btn btn-secondary">
-          Submit a Paper
-        </a>
-        <a href={`${IJMR_URL}/current-issue`} target="_blank" rel="noreferrer" className="btn btn-secondary">
-          View Current Issue
-        </a>
-      </div>
+ 
 
       <section>
         <h3>About IJMR</h3>
@@ -51,7 +42,18 @@ export default function IJMR() {
 
       {!loading && !error && links.length > 0 && (
         <section>
-          <h3>Latest from IJMR</h3>
+          <div className="researcher-section-header">
+            <h3>Latest from IJMR</h3>
+            <a
+              href={`${IJMR_URL}/current-issue`}
+              target="https://ijmr.islingtoncollege.edu.np/index.php/IJMR/issue/view/2"
+              rel="noreferrer"
+              className="researcher-explore-button"
+            >
+              View current issue
+              <span>→</span>
+            </a>
+          </div>
           <div className="related-list">
             {links.map((link) => (
               <a

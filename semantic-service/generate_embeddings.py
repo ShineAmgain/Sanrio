@@ -1,9 +1,14 @@
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 from supabase import create_client
 from sentence_transformers import SentenceTransformer
 
-load_dotenv("/Users/shineamgain/Sanrio/backend/.env")
+# Resolve the .env path relative to this file instead of hardcoding a
+# developer's local machine path, so this works on any checkout/deployment.
+ENV_PATH = Path(__file__).resolve().parent.parent / "backend" / ".env"
+load_dotenv(ENV_PATH)
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")

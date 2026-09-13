@@ -88,7 +88,7 @@ export default function Home() {
 
       <section className="section split-section">
         <div className="split-main">
-          <h2>Academic Research</h2>
+          <h2>Publications</h2>
           {publications.loading && <LoadingState count={4} />}
           {publications.error && <ErrorState onRetry={publications.reload} />}
           {!publications.loading &&
@@ -107,10 +107,10 @@ export default function Home() {
             )}
         </div>
         <aside className="split-feature">
-          <h3>Explore Scholarly Research</h3>
+          <h3>Explore Scholarly Publications</h3>
           <p>Dive into published work from across the department.</p>
           <Link to="/publications" className="btn btn-light">
-            View Research
+            View Publications
           </Link>
         </aside>
       </section>

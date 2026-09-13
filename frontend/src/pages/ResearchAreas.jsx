@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 
 import BackButton from "../components/BackButton";
+import PageHero from "../components/PageHero";
 import { useApiData } from "../hooks/useApiData";
 import {
   getResearchAreas,
@@ -65,26 +66,21 @@ export default function ResearchAreas() {
     <div className="research-areas-page">
       <BackButton />
 
-      {/* HEADER */}
-      <header className="research-areas-header">
-        <div>
-          <p className="section-eyebrow">RESEARCH DIRECTORY</p>
-
-          <h1>Research Areas</h1>
-
-          <p className="research-areas-intro">
-            Explore the research themes within the R&amp;D ecosystem
-            and discover the people, projects, publications and
-            activities connected to each area.
-          </p>
-        </div>
-
-        {!areasState.loading && areas.length > 0 && (
-          <span className="research-area-count">
-            {areas.length} areas
-          </span>
-        )}
-      </header>
+      <PageHero
+        accent="green"
+        kicker="Research Directory"
+        title="Where ideas"
+        accentWord="connect."
+        description="Explore the research themes within the R&D ecosystem and discover the people, projects, publications and activities connected to each area."
+        stat={
+          !areasState.loading
+            ? {
+                number: String(areas.length).padStart(2, "0"),
+                label: areas.length === 1 ? "Area" : "Areas",
+              }
+            : undefined
+        }
+      />
 
       {/* AREA INDEX */}
       <section className="research-area-index">

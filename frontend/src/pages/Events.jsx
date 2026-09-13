@@ -1,6 +1,7 @@
 import { useApiData } from "../hooks/useApiData";
 import { getEvents } from "../api/events";
 import EventCard from "../components/EventCard";
+import PageHero from "../components/PageHero";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -10,34 +11,18 @@ export default function Events() {
   const events = data?.data || [];
 
   return (
-    <main className="events-page">
-      <div className="events-container">
-
-        <header className="events-header">
-          <div className="events-header-content">
-            <span className="events-kicker">
-              RESEARCH & ACADEMIC CALENDAR
-            </span>
-
-            <h1>
-              Events<span>.</span>
-            </h1>
-
-            <p>
-              Discover upcoming talks, conferences, seminars, and other
-              activities across the research community.
-            </p>
-          </div>
-
-          {!loading && !error && events.length > 0 && (
-            <div className="events-count">
-              <strong>{events.length}</strong>
-              <span>Upcoming events</span>
-            </div>
-          )}
-        </header>
-
-        <div className="events-divider" />
+    <main className="page-container">
+      <PageHero
+        accent="orange"
+        kicker="Research & Academic Calendar"
+        title="What's"
+        accentWord="happening."
+        description="Discover upcoming talks, conferences, seminars, and other activities across the research community."
+        stat={{
+          number: String(events.length).padStart(2, "0"),
+          label: events.length === 1 ? "Upcoming event" : "Upcoming events",
+        }}
+      />
 
         {loading && (
           <div className="events-loading">
@@ -65,7 +50,6 @@ export default function Events() {
           </section>
         )}
 
-      </div>
     </main>
   );
 }

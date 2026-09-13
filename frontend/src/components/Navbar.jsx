@@ -1,17 +1,91 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import logoIcon from "../assets/logo-icon.png";
 
 const RESEARCH_DROPDOWN = [
+  { to: "/projects", label: "Projects" },
+  { to: "/publications", label: "Publications" },
   { to: "/research-areas", label: "Research Areas" },
   { to: "/research-groups", label: "Research Groups" },
   { to: "/research-support", label: "Research Support" },
-  { to: "/ethics", label: "Ethics & Integrity" },
+];
+
+const COMMUNITY_DROPDOWN = [
+  { to: "/events", label: "Events" },
+  { to: "/opportunities", label: "Grants & Funding" },
+  { to: "/ijmr", label: "IJMR" },
   { to: "/partnerships", label: "Partnerships" },
+  { to: "/ethics", label: "Ethics & Integrity" },
 ];
 
 function navLinkClass({ isActive }) {
   return isActive ? "navbar-link active" : "navbar-link";
+}
+
+function NavDropdown({ label, items, onNavigate }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    function handleOutsideClick(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [open]);
+
+  function handleSelect() {
+    setOpen(false);
+    onNavigate();
+  }
+
+  return (
+    <div className="navbar-dropdown" ref={containerRef}>
+      <button
+        type="button"
+        className="navbar-link navbar-dropdown-trigger"
+        aria-expanded={open}
+        aria-haspopup="true"
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        {label}
+        <svg
+          className="navbar-dropdown-caret"
+          viewBox="0 0 24 24"
+          width="11"
+          height="11"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="dropdown-panel">
+          {items.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="dropdown-item"
+              onClick={handleSelect}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function Navbar() {
@@ -71,27 +145,6 @@ export default function Navbar() {
           Home
         </NavLink>
 
-        <NavLink to="/about" className={navLinkClass} onClick={closeMenu}>
-          About R&amp;D
-        </NavLink>
-
-        <details className="navbar-dropdown">
-          <summary className="navbar-link">Research</summary>
-
-          <div className="dropdown-panel">
-            {RESEARCH_DROPDOWN.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className="dropdown-item"
-                onClick={closeMenu}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </details>
-
         <NavLink
           to="/researchers"
           className={navLinkClass}
@@ -100,32 +153,20 @@ export default function Navbar() {
           People
         </NavLink>
 
-        <NavLink to="/projects" className={navLinkClass} onClick={closeMenu}>
-          Projects
-        </NavLink>
+        <NavDropdown
+          label="Research"
+          items={RESEARCH_DROPDOWN}
+          onNavigate={closeMenu}
+        />
 
-        <NavLink
-          to="/publications"
-          className={navLinkClass}
-          onClick={closeMenu}
-        >
-          Publications
-        </NavLink>
+        <NavDropdown
+          label="Community"
+          items={COMMUNITY_DROPDOWN}
+          onNavigate={closeMenu}
+        />
 
-        <NavLink to="/events" className={navLinkClass} onClick={closeMenu}>
-          Events
-        </NavLink>
-
-        <NavLink
-          to="/opportunities"
-          className={navLinkClass}
-          onClick={closeMenu}
-        >
-          Grants
-        </NavLink>
-
-        <NavLink to="/ijmr" className={navLinkClass} onClick={closeMenu}>
-          IJMR
+        <NavLink to="/about" className={navLinkClass} onClick={closeMenu}>
+          About R&amp;D
         </NavLink>
 
         {/* Announcements */}
