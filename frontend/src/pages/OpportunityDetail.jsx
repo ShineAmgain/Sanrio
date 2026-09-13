@@ -11,92 +11,255 @@ export default function OpportunityDetail() {
   const { data, loading, error, reload } = useApiData(() => getGrant(id), [id]);
   const grant = data?.data;
 
-  if (loading) return <LoadingState count={1} />;
-  if (error) return <ErrorState onRetry={reload} />;
-  if (!grant) return <EmptyState message="Opportunity not found." />;
+  if (loading) {
+    return (
+      <div className="opportunity-detail-page">
+        <div className="opportunity-detail-container">
+          <LoadingState count={1} />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="opportunity-detail-page">
+        <div className="opportunity-detail-container">
+          <ErrorState onRetry={reload} />
+        </div>
+      </div>
+    );
+  }
+
+  if (!grant) {
+    return (
+      <div className="opportunity-detail-page">
+        <div className="opportunity-detail-container">
+          <EmptyState message="Opportunity not found." />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-container detail-page">
-      <BackButton />
-      {grant.funding_type && <span className="badge badge-type">{grant.funding_type}</span>}
-      <h1>{grant.title}</h1>
-      {grant.provider && <p className="meta-line">{grant.provider}</p>}
-      {grant.description && <p className="detail-lead">{grant.description}</p>}
+    <div className="opportunity-detail-page">
+      <div className="opportunity-detail-container">
 
-      {grant.research_areas?.length > 0 && (
-        <div className="tag-row" style={{ margin: "0.75rem 0" }}>
-          {grant.research_areas.map((area) => (
-            <Link key={area.id} to={`/research-areas?area=${area.id}`} className="tag">
-              {area.name}
-            </Link>
-          ))}
+        <div className="opportunity-detail-back">
+          <BackButton />
         </div>
-      )}
 
-      {grant.amount && (
-        <p className="meta-line">
-          <strong>Amount: </strong>
-          {grant.amount}
-        </p>
-      )}
-      {grant.deadline && (
-        <p className="meta-line">
-          <strong>Deadline: </strong>
-          {grant.deadline}
-        </p>
-      )}
-      {grant.eligibility && (
-        <section>
-          <h3>Eligibility</h3>
-          <p>{grant.eligibility}</p>
-        </section>
-      )}
-      {grant.requirements && (
-        <section>
-          <h3>Requirements</h3>
-          <p>{grant.requirements}</p>
-        </section>
-      )}
-      {grant.application_process && (
-        <section>
-          <h3>Application Process</h3>
-          <p>{grant.application_process}</p>
-        </section>
-      )}
+        <header className="opportunity-detail-header">
 
-      {grant.projects?.length > 0 && (
-        <section>
-          <h3>Funded Projects</h3>
-          <div className="related-list">
-            {grant.projects.map((p) => (
-              <Link key={p.id} to={`/projects/${p.id}`} className="related-item">
-                <h4>{p.title}</h4>
-                {p.status && <p className="muted">Status: {p.status}</p>}
-              </Link>
-            ))}
+          <div className="opportunity-detail-kicker">
+            <span className="opportunity-detail-kicker-line"></span>
+            FUNDING OPPORTUNITY
           </div>
-        </section>
-      )}
 
-      <div className="detail-actions">
-        {grant.external_url && (
-          <a href={grant.external_url} target="_blank" rel="noreferrer" className="btn btn-primary">
-            Apply
-          </a>
-        )}
-        {grant.guidelines_url && (
-          <a
-            href={grant.guidelines_url}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-secondary"
-          >
-            Guidelines
-          </a>
-        )}
+          {grant.funding_type && (
+            <span className="opportunity-detail-type">
+              {grant.funding_type}
+            </span>
+          )}
+
+          <h1>{grant.title}</h1>
+
+          {grant.provider && (
+            <p className="opportunity-detail-provider">
+              {grant.provider}
+            </p>
+          )}
+
+          {grant.description && (
+            <p className="opportunity-detail-lead">
+              {grant.description}
+            </p>
+          )}
+
+          {(grant.amount || grant.deadline) && (
+            <div className="opportunity-detail-meta">
+
+              {grant.amount && (
+                <div className="opportunity-detail-meta-item">
+                  <span className="opportunity-detail-meta-label">
+                    FUNDING
+                  </span>
+                  <span className="opportunity-detail-meta-value">
+                    {grant.amount}
+                  </span>
+                </div>
+              )}
+
+              {grant.deadline && (
+                <div className="opportunity-detail-meta-item">
+                  <span className="opportunity-detail-meta-label">
+                    DEADLINE
+                  </span>
+                  <span className="opportunity-detail-meta-value">
+                    {grant.deadline}
+                  </span>
+                </div>
+              )}
+
+            </div>
+          )}
+        </header>
+
+        <div className="opportunity-detail-layout">
+
+          <main className="opportunity-detail-main">
+
+            {grant.research_areas?.length > 0 && (
+              <section className="opportunity-detail-section">
+                <div className="opportunity-detail-section-heading">
+                  <span className="opportunity-detail-section-marker"></span>
+                  Research Areas
+                </div>
+
+                <div className="opportunity-detail-tags">
+                  {grant.research_areas.map((area) => (
+                    <Link
+                      key={area.id}
+                      to={`/research-areas?area=${area.id}`}
+                      className="opportunity-detail-tag"
+                    >
+                      {area.name}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {grant.eligibility && (
+              <section className="opportunity-detail-section">
+                <div className="opportunity-detail-section-heading">
+                  <span className="opportunity-detail-section-marker"></span>
+                  Eligibility
+                </div>
+
+                <p className="opportunity-detail-text">
+                  {grant.eligibility}
+                </p>
+              </section>
+            )}
+
+            {grant.requirements && (
+              <section className="opportunity-detail-section">
+                <div className="opportunity-detail-section-heading">
+                  <span className="opportunity-detail-section-marker"></span>
+                  Requirements
+                </div>
+
+                <p className="opportunity-detail-text">
+                  {grant.requirements}
+                </p>
+              </section>
+            )}
+
+            {grant.application_process && (
+              <section className="opportunity-detail-section">
+                <div className="opportunity-detail-section-heading">
+                  <span className="opportunity-detail-section-marker"></span>
+                  Application Process
+                </div>
+
+                <p className="opportunity-detail-text">
+                  {grant.application_process}
+                </p>
+              </section>
+            )}
+
+            {grant.projects?.length > 0 && (
+              <section className="opportunity-detail-section">
+                <div className="opportunity-detail-section-heading">
+                  <span className="opportunity-detail-section-marker"></span>
+                  Funded Projects
+                </div>
+
+                <div className="opportunity-related-list">
+                  {grant.projects.map((project) => (
+                    <Link
+                      key={project.id}
+                      to={`/projects/${project.id}`}
+                      className="opportunity-related-item"
+                    >
+                      <div>
+                        <h4>{project.title}</h4>
+
+                        {project.status && (
+                          <p>
+                            Status: {project.status}
+                          </p>
+                        )}
+                      </div>
+
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+          </main>
+
+          <aside className="opportunity-detail-sidebar">
+
+            <div className="opportunity-action-card">
+
+              <div className="opportunity-action-label">
+                NEXT STEP
+              </div>
+
+              <h3>Interested in this opportunity?</h3>
+
+              <p>
+                Review the available information and follow the application
+                resources below.
+              </p>
+
+              <div className="opportunity-detail-actions">
+
+                {grant.external_url && (
+                  <a
+                    href={grant.external_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="opportunity-btn opportunity-btn-primary"
+                  >
+                    Apply
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                )}
+
+                {grant.guidelines_url && (
+                  <a
+                    href={grant.guidelines_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="opportunity-btn opportunity-btn-secondary"
+                  >
+                    View Guidelines
+                  </a>
+                )}
+
+              </div>
+
+            </div>
+
+            {grant.contact && (
+              <div className="opportunity-contact-card">
+                <span className="opportunity-contact-label">
+                  CONTACT
+                </span>
+
+                <p>{grant.contact}</p>
+              </div>
+            )}
+
+          </aside>
+
+        </div>
       </div>
-
-      {grant.contact && <p className="meta-line">Contact: {grant.contact}</p>}
     </div>
   );
 }

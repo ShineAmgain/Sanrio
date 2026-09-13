@@ -9,89 +9,258 @@ import EmptyState from "../components/EmptyState";
 
 export default function PublicationDetail() {
   const { id } = useParams();
-  const { data, loading, error, reload } = useApiData(() => getPublication(id), [id]);
+
+  const {
+    data,
+    loading,
+    error,
+    reload,
+  } = useApiData(() => getPublication(id), [id]);
+
   const publication = data?.data;
 
-  // Semantically similar publications/projects + other work sharing an
-  // author — fetched live from the database.
-  const relatedState = useApiData(() => getRelatedPublications(id), [id]);
+  const relatedState = useApiData(
+    () => getRelatedPublications(id),
+    [id]
+  );
+
   const related = relatedState.data?.data;
 
-  if (loading) return <LoadingState count={1} />;
-  if (error) return <ErrorState onRetry={reload} />;
-  if (!publication) return <EmptyState message="Publication not found." />;
+  if (loading) {
+    return (
+      <div className="publication-detail-page">
+        <div className="publication-detail-container publication-detail-state">
+          <LoadingState count={1} />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="publication-detail-page">
+        <div className="publication-detail-container publication-detail-state">
+          <ErrorState onRetry={reload} />
+        </div>
+      </div>
+    );
+  }
+
+  if (!publication) {
+    return (
+      <div className="publication-detail-page">
+        <div className="publication-detail-container publication-detail-state">
+          <EmptyState message="Publication not found." />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-container detail-page">
-      <BackButton />
-      {publication.publication_type && (
-        <span className="badge badge-type">{publication.publication_type}</span>
-      )}
-      <h1>{publication.title}</h1>
-      {publication.authors && <p className="meta-line">{publication.authors}</p>}
-      {publication.year && <p className="meta-line">{publication.year}</p>}
+    <div className="publication-detail-page">
+      <div className="publication-detail-container">
 
-      {publication.research_areas?.length > 0 && (
-        <div className="tag-row" style={{ margin: "0.75rem 0" }}>
-          {publication.research_areas.map((area) => (
-            <Link key={area.id} to={`/research-areas?area=${area.id}`} className="tag">
-              {area.name}
-            </Link>
-          ))}
+        <div className="publication-detail-back">
+          <BackButton />
         </div>
-      )}
 
-      {(publication.abstract || publication.summary) && (
-        <section>
-          <h3>Abstract</h3>
-          <p>{publication.abstract || publication.summary}</p>
-        </section>
-      )}
+        <header className="publication-detail-header">
 
-      {publication.journal && (
-        <p className="meta-line">
-          <strong>Journal/Venue: </strong>
-          {publication.journal}
-        </p>
-      )}
-      {publication.doi && (
-        <p className="meta-line">
-          <strong>DOI: </strong>
-          {publication.doi}
-        </p>
-      )}
-      {publication.external_url && (
-        <a
-          href={publication.external_url}
-          target="_blank"
-          rel="noreferrer"
-          className="btn btn-primary"
-        >
-          View publication
-        </a>
-      )}
-
-      {publication.events?.length > 0 && (
-        <section>
-          <h3>Presented At</h3>
-          <div className="related-list">
-            {publication.events.map((e) => (
-              <Link key={e.id} to={`/events/${e.id}`} className="related-item">
-                <h4>{e.title}</h4>
-              </Link>
-            ))}
+          <div className="publication-detail-kicker">
+            <span className="publication-detail-kicker-line"></span>
+            RESEARCH PUBLICATION
           </div>
-        </section>
-      )}
 
-      {!relatedState.loading && related && (
-        <RelatedResearch
-          similar={related.similar}
-          more={related.moreByAuthors}
-          moreLabel="More by these authors"
-          moreType="publication"
-        />
-      )}
+          {publication.publication_type && (
+            <div className="publication-detail-type">
+              {publication.publication_type}
+            </div>
+          )}
+
+          <h1>{publication.title}</h1>
+
+          <div className="publication-detail-meta">
+
+            {publication.authors && (
+              <div className="publication-detail-meta-item">
+                <span className="publication-detail-meta-label">
+                  AUTHORS
+                </span>
+                <span className="publication-detail-meta-value">
+                  {publication.authors}
+                </span>
+              </div>
+            )}
+
+            {publication.year && (
+              <div className="publication-detail-meta-item">
+                <span className="publication-detail-meta-label">
+                  YEAR
+                </span>
+                <span className="publication-detail-meta-value">
+                  {publication.year}
+                </span>
+              </div>
+            )}
+
+            {publication.journal && (
+              <div className="publication-detail-meta-item">
+                <span className="publication-detail-meta-label">
+                  VENUE
+                </span>
+                <span className="publication-detail-meta-value">
+                  {publication.journal}
+                </span>
+              </div>
+            )}
+
+          </div>
+
+        </header>
+
+        <div className="publication-detail-layout">
+
+          <main className="publication-detail-main">
+
+            {publication.research_areas?.length > 0 && (
+              <section className="publication-detail-section publication-detail-topics">
+                <div className="publication-detail-section-heading">
+                  <span className="publication-detail-section-marker"></span>
+                  Research areas
+                </div>
+
+                <div className="publication-detail-tags">
+                  {publication.research_areas.map((area) => (
+                    <Link
+                      key={area.id}
+                      to={`/research-areas?area=${area.id}`}
+                      className="publication-detail-tag"
+                    >
+                      {area.name}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {(publication.abstract || publication.summary) && (
+              <section className="publication-detail-section publication-detail-abstract">
+                <div className="publication-detail-section-heading">
+                  <span className="publication-detail-section-marker"></span>
+                  Abstract
+                </div>
+
+                <p>
+                  {publication.abstract || publication.summary}
+                </p>
+              </section>
+            )}
+
+            {publication.events?.length > 0 && (
+              <section className="publication-detail-section publication-detail-presented">
+                <div className="publication-detail-section-heading">
+                  <span className="publication-detail-section-marker"></span>
+                  Presented at
+                </div>
+
+                <div className="publication-detail-event-list">
+                  {publication.events.map((event) => (
+                    <Link
+                      key={event.id}
+                      to={`/events/${event.id}`}
+                      className="publication-detail-event"
+                    >
+                      <div>
+                        <span className="publication-detail-event-label">
+                          EVENT
+                        </span>
+                        <h3>{event.title}</h3>
+                      </div>
+
+                      <span className="publication-detail-event-arrow">
+                        ↗
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+          </main>
+
+          <aside className="publication-detail-sidebar">
+
+            <div className="publication-detail-sidebar-card">
+
+              <div className="publication-detail-sidebar-heading">
+                Publication details
+              </div>
+
+              {publication.journal && (
+                <div className="publication-detail-sidebar-item">
+                  <span>Journal / Venue</span>
+                  <strong>{publication.journal}</strong>
+                </div>
+              )}
+
+              {publication.year && (
+                <div className="publication-detail-sidebar-item">
+                  <span>Published</span>
+                  <strong>{publication.year}</strong>
+                </div>
+              )}
+
+              {publication.doi && (
+                <div className="publication-detail-sidebar-item">
+                  <span>DOI</span>
+                  <strong className="publication-detail-doi">
+                    {publication.doi}
+                  </strong>
+                </div>
+              )}
+
+              {publication.external_url && (
+                <a
+                  href={publication.external_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="publication-detail-button"
+                >
+                  <span>View publication</span>
+                  <span className="publication-detail-button-arrow">
+                    ↗
+                  </span>
+                </a>
+              )}
+
+            </div>
+
+          </aside>
+
+        </div>
+
+        {!relatedState.loading && related && (
+          <section className="publication-detail-related">
+            <div className="publication-detail-related-heading">
+              <span className="publication-detail-related-kicker">
+                CONTINUE EXPLORING
+              </span>
+
+              <h2>Related research</h2>
+
+              <div className="publication-detail-related-line"></div>
+            </div>
+
+            <RelatedResearch
+              similar={related.similar}
+              more={related.moreByAuthors}
+              moreLabel="More by these authors"
+              moreType="publication"
+            />
+          </section>
+        )}
+
+      </div>
     </div>
   );
 }

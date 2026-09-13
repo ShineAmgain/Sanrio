@@ -26,6 +26,7 @@ export default function Researchers() {
     <div className="page-container">
       <div className="page-header">
         <h1>Meet the Minds</h1>
+
         <select
           className="filter-select"
           value={department}
@@ -41,14 +42,20 @@ export default function Researchers() {
       </div>
 
       {loading && <LoadingState count={6} />}
+
       {error && <ErrorState onRetry={reload} />}
+
       {!loading && !error && filtered.length === 0 && (
         <EmptyState message="No researchers found." />
       )}
+
       {!loading && !error && filtered.length > 0 && (
         <div className="card-grid card-grid-4">
           {filtered.map((researcher) => (
-            <ResearcherCard key={researcher.id} researcher={researcher} />
+            <ResearcherCard
+              key={researcher.id}
+              researcher={researcher}
+            />
           ))}
         </div>
       )}
