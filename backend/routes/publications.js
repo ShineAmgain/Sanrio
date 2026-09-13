@@ -20,12 +20,23 @@ router.get('/', async (req, res) => {
   const enriched = await supabase
     .from('publications')
     .select(`
-      id, title, publication_year, summary,
-      publication_research_areas ( research_areas ( id, name ) )
-    `);
+      id,
+      title,
+      publication_year,
+      summary,
+      publication_research_areas (
+        research_areas (
+          id,
+          name
+        )
+      )
+    `)
+    .eq('status', 'published');
 
   if (!enriched.error) {
-    return res.json({ data: (enriched.data || []).map(shapePublication) });
+    return res.json({
+      data: (enriched.data || []).map(shapePublication),
+    });
   }
 
   console.warn(
@@ -35,9 +46,18 @@ router.get('/', async (req, res) => {
 
   const { data, error } = await supabase
     .from('publications')
-    .select('id, title, publication_year, summary');
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ data: (data || []).map(shapePublication) });
+    .select('id, title, publication_year, summary')
+    .eq('status', 'published');
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+
+  res.json({
+    data: (data || []).map(shapePublication),
+  });
 });
 
 // Required cross-linking per the brief: Publication -> Authors, Research

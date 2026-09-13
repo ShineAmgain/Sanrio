@@ -29,10 +29,6 @@ export default function ResearcherCard({ researcher }) {
         {researcher.position || "Researcher"}
       </p>
 
-      {researcher.department && (
-        <span className="dept-badge">{researcher.department}</span>
-      )}
-
       {researcher.bio && <p className="researcher-bio">{researcher.bio}</p>}
 
       {researcher.research_areas?.length > 0 && (

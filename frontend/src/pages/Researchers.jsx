@@ -10,16 +10,10 @@ import EmptyState from "../components/EmptyState";
 
 export default function Researchers() {
   const { data, loading, error, reload } = useApiData(() => getResearchers(), []);
-  const [department, setDepartment] = useState("all");
   const [params, setParams] = useSearchParams();
   const [area, setArea] = useState(params.get("area") || "all");
 
   const researchers = data?.data || [];
-
-  const departments = useMemo(() => {
-    const set = new Set(researchers.map((r) => r.department).filter(Boolean));
-    return ["all", ...set];
-  }, [researchers]);
 
   // Research areas live on a many-to-many link (a researcher can belong to
   // several), so — unlike department — they need to be flattened out of
@@ -46,11 +40,10 @@ export default function Researchers() {
   }
 
   const filtered = researchers.filter((r) => {
-    const matchesDepartment = department === "all" || r.department === department;
     const matchesArea =
       area === "all" ||
       (r.research_areas || []).some((a) => String(a?.id) === area);
-    return matchesDepartment && matchesArea;
+    return matchesArea;
   });
 
   return (
@@ -67,19 +60,6 @@ export default function Researchers() {
         }}
       >
         <div className="filter-group">
-          <select
-            className="filter-select"
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            aria-label="Filter by department"
-          >
-            {departments.map((d) => (
-              <option key={d} value={d}>
-                {d === "all" ? "All departments" : d}
-              </option>
-            ))}
-          </select>
-
           <select
             className="filter-select"
             value={area}

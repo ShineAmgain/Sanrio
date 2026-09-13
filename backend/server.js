@@ -90,7 +90,7 @@ app.get("/api/search", async (req, res) => {
     // 2. Search all R&D content in Supabase
     const { data, error } = await supabase.rpc("semantic_search", {
       query_embedding: embeddingData.embedding,
-      match_threshold: 0.20,
+      match_threshold: 0.30,
       match_count: 20,
     });
 
