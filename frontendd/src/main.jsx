@@ -2112,10 +2112,27 @@ function CrudPage({
     }
   };
 
+  const archiveField = fields.find(
+    f =>
+      f[0] === 'content_status' &&
+      Array.isArray(f[3]) &&
+      f[3].includes('archived')
+  ) ||
+    fields.find(
+      f =>
+        f[0] === 'status' &&
+        Array.isArray(f[3]) &&
+        f[3].includes('archived')
+    );
+
   const remove = async id => {
+    const isArchivable = !!archiveField;
+
     if (
       !confirm(
-        'Delete this record? This cannot be undone.'
+        isArchivable
+          ? 'Archive this record? It will be marked as archived instead of being permanently deleted.'
+          : 'Delete this record? This cannot be undone.'
       )
     ) {
       return;
@@ -2128,17 +2145,36 @@ function CrudPage({
         ).data.session
           ?.access_token;
 
-      await api.remove(
-        resource,
-        id,
-        token
-      );
+      if (isArchivable) {
+        const key = archiveField[0];
 
-      setRows(r =>
-        r.filter(
-          x => x.id !== id
-        )
-      );
+        await api.update(
+          resource,
+          id,
+          { [key]: 'archived' },
+          token
+        );
+
+        setRows(r =>
+          r.map(x =>
+            x.id === id
+              ? { ...x, [key]: 'archived' }
+              : x
+          )
+        );
+      } else {
+        await api.remove(
+          resource,
+          id,
+          token
+        );
+
+        setRows(r =>
+          r.filter(
+            x => x.id !== id
+          )
+        );
+      }
     } catch (e) {
       setError(e.message);
     }
@@ -2260,9 +2296,25 @@ function CrudPage({
                         onClick={() =>
                           remove(row.id)
                         }
-                        aria-label="Delete"
+                        aria-label={
+                          archiveField
+                            ? 'Archive'
+                            : 'Delete'
+                        }
+                        title={
+                          archiveField
+                            ? 'Archive'
+                            : 'Delete'
+                        }
+                        disabled={
+                          archiveField &&
+                          row[archiveField[0]] ===
+                            'archived'
+                        }
                       >
-                        ⌫
+                        {archiveField
+                          ? '🗄'
+                          : '⌫'}
                       </button>
                     </td>
                   </tr>
@@ -2773,15 +2825,19 @@ function Status({ value }) {
     <span
       className={
         `badge ${
-          [
-            'active',
-            'published',
-            'upcoming',
-            'ongoing',
-            'open',
-            'started',
-            'completed'
-          ].includes(value)
+          value === 'archived'
+            ? 'archived'
+            : value === 'blocked'
+            ? 'blocked'
+            : [
+                'active',
+                'published',
+                'upcoming',
+                'ongoing',
+                'open',
+                'started',
+                'completed'
+              ].includes(value)
             ? 'success'
             : [
                 'draft',
