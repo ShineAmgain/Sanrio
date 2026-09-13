@@ -11,7 +11,7 @@ export default function Opportunities() {
   const grants = data?.data || [];
 
   return (
-    <div className="page-container">
+    <div className="opportunities-page">
       <PageHero
         accent="purple"
         kicker="Research & Academia"

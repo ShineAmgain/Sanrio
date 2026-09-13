@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logoIcon from "../assets/logo-icon.png";
 import { useApiData } from "../hooks/useApiData";
 import { getProjects } from "../api/projects";
 import { getResearchers } from "../api/researchers";
@@ -28,13 +29,24 @@ export default function Home() {
   return (
     <div className="home-page">
       <section className="hero">
-        <h1>
-          Research &amp; <span className="accent">Development</span>
-        </h1>
-        <p className="hero-subtitle">
-          Explore and connect with the R&amp;D community through research,
-          projects, publications, events and grants/opportunities.
-        </p>
+        <div className="hero-top">
+          <div className="hero-text">
+            <h1>
+              Research &amp; <span className="accent">Development</span>
+            </h1>
+            <p className="hero-subtitle">
+              Explore and connect with the R&amp;D community through research,
+              projects, publications, events and grants/opportunities.
+            </p>
+          </div>
+
+          <img
+            src={logoIcon}
+            alt=""
+            className="hero-logo"
+            aria-hidden="true"
+          />
+        </div>
 
         <SearchBar />
 

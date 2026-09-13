@@ -60,33 +60,33 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="footer-link-groups">
-          <nav className="footer-links" aria-label="Research navigation">
-            <span className="footer-links-heading">Research</span>
+        <nav className="footer-links" aria-label="Footer navigation">
+          <div className="footer-column">
+            <span className="footer-column-title">Research</span>
             <Link to="/projects">Projects</Link>
             <Link to="/publications">Publications</Link>
             <Link to="/research-areas">Research Areas</Link>
             <Link to="/research-groups">Research Groups</Link>
             <Link to="/research-support">Research Support</Link>
-          </nav>
+          </div>
 
-          <nav className="footer-links" aria-label="Community navigation">
-            <span className="footer-links-heading">Community</span>
+          <div className="footer-column">
+            <span className="footer-column-title">Community</span>
             <Link to="/researchers">People</Link>
             <Link to="/events">Our Events</Link>
             <Link to="/opportunities">Grants &amp; Funding</Link>
             <Link to="/ijmr">IJMR</Link>
             <Link to="/partnerships">Partnerships</Link>
             <Link to="/ethics">Ethics &amp; Integrity</Link>
-          </nav>
+          </div>
 
-          <nav className="footer-links" aria-label="Site navigation">
-            <span className="footer-links-heading">About</span>
+          <div className="footer-column">
+            <span className="footer-column-title">About</span>
             <Link to="/about">About R&amp;D</Link>
             <Link to="/announcements">Announcements</Link>
             <Link to="/search">Search</Link>
-          </nav>
-        </div>
+          </div>
+        </nav>
       </div>
 
       <div className="footer-bottom">
