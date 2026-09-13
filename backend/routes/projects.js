@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
-const requireAdmin = require('../routes/requireadmin');
+const requireAdmin = require('./requireadmin');
 
 router.get('/', async (req, res) => {
   const { data, error } = await supabase
