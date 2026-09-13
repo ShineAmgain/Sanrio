@@ -3,8 +3,53 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { api } from './lib/api';
-import logo from './pages/logo.png';
+import logo from './pages/logo-mark.png';
 import './styles.css';
+
+// Builds an embeddable Google Calendar URL from the shared/public calendar
+// configured via VITE_GOOGLE_CALENDAR_ID. When a date is provided, the embed
+// jumps to that week so the calendar stays in sync with the meeting being
+// scheduled. Returns null when no calendar has been configured yet.
+function buildCalendarEmbedSrc(dateStr) {
+  const calendarId =
+    import.meta.env.VITE_GOOGLE_CALENDAR_ID;
+
+  if (!calendarId) return null;
+
+  const params = new URLSearchParams({
+    src: calendarId,
+    ctz:
+      Intl.DateTimeFormat().resolvedOptions()
+        .timeZone || 'UTC',
+    mode: dateStr ? 'WEEK' : 'AGENDA',
+    showTitle: '0',
+    showPrint: '0',
+    showTabs: '0',
+    showCalendars: '0',
+    showTz: '0'
+  });
+
+  if (dateStr) {
+    const start = new Date(
+      dateStr + 'T00:00:00'
+    );
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    const fmt = d =>
+      d
+        .toISOString()
+        .slice(0, 10)
+        .replace(/-/g, '');
+
+    params.set(
+      'dates',
+      `${fmt(start)}/${fmt(end)}`
+    );
+  }
+
+  return `https://calendar.google.com/calendar/embed?${params.toString()}`;
+}
 
 const NAV = [
   ['Dashboard', '/', '▦'],
@@ -53,24 +98,8 @@ const MANAGEMENT = [
     () => announcementColumns,
     'title'
   ],
-  [
-    'partners',
-    '/partners',
-    '•',
-    'Partners',
-    () => partnerFields,
-    () => partnerColumns,
-    'name'
-  ],
-  [
-    'statistics',
-    '/statistics',
-    '•',
-    'Statistics',
-    () => statisticFields,
-    () => statisticColumns,
-    'label'
-  ],
+  
+  
 ];
 
 function App() {
@@ -284,11 +313,6 @@ function Shell({ session }) {
           >
             ☰
           </button>
-
-          <div className="top-search">
-            ⌕
-            <input placeholder="Search..." />
-          </div>
 
           <div className="user-chip">
             {session.user.email}
@@ -941,6 +965,9 @@ function MeetingsPage() {
   const [saving, setSaving] =
     useState(false);
 
+  const [showCalendar, setShowCalendar] =
+    useState(false);
+
   const token = async () =>
     (
       await supabase.auth.getSession()
@@ -992,6 +1019,8 @@ function MeetingsPage() {
           values.agenda || null,
         minutes:
           values.minutes || null,
+        calendar_link:
+          values.calendar_link || null,
         participants:
           values.participants || []
       };
@@ -1099,6 +1128,27 @@ function MeetingsPage() {
 
   return (
     <Page title="Meetings">
+      <div className="calendar-toggle-row">
+        <button
+          className="secondary"
+          onClick={() =>
+            setShowCalendar(
+              s => !s
+            )
+          }
+        >
+          {showCalendar
+            ? 'Hide Google Calendar'
+            : '📅 Show Google Calendar'}
+        </button>
+      </div>
+
+      {showCalendar && (
+        <GoogleCalendarPanel
+          date={null}
+        />
+      )}
+
       <div className="meeting-tabs">
         <button
           className={
@@ -1297,6 +1347,21 @@ function MeetingsSection({
                     </td>
 
                     <td className="actions">
+                      {m.calendar_link && (
+                        <a
+                          href={
+                            m.calendar_link
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Open in Google Calendar"
+                          title="Open in Google Calendar"
+                          className="calendar-link-btn"
+                        >
+                          📅
+                        </a>
+                      )}
+
                       <button
                         onClick={() =>
                           onEdit(m)
@@ -1435,6 +1500,53 @@ function ActionItemsSection({
   );
 }
 
+function GoogleCalendarPanel({
+  date,
+  link
+}) {
+  const embedSrc = buildCalendarEmbedSrc(
+    date
+  );
+
+  return (
+    <div className="calendar-panel">
+      <div className="calendar-panel-head">
+        <span>📅 Google Calendar</span>
+
+        {link && (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open event ↗
+          </a>
+        )}
+      </div>
+
+      {embedSrc ? (
+        <iframe
+          src={embedSrc}
+          title="Google Calendar"
+          className="calendar-iframe"
+          frameBorder="0"
+          scrolling="no"
+        />
+      ) : (
+        <p className="participant-hint">
+          No shared calendar is configured yet.
+          Set{' '}
+          <code>
+            VITE_GOOGLE_CALENDAR_ID
+          </code>{' '}
+          in the frontend .env to embed your
+          team's Google Calendar here.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function MeetingModal({
   initial,
   researchers,
@@ -1454,6 +1566,8 @@ function MeetingModal({
       initial.agenda || '',
     minutes:
       initial.minutes || '',
+    calendar_link:
+      initial.calendar_link || '',
     participants:
       (initial.participants || [])
         .map(p => p.id)
@@ -1676,6 +1790,34 @@ function MeetingModal({
               required
             />
           </label>
+
+          <label>
+            <span>
+              Google Calendar link
+              <span className="label-hint">
+                optional
+              </span>
+            </span>
+
+            <input
+              type="url"
+              value={v.calendar_link}
+              onChange={e =>
+                set(
+                  'calendar_link',
+                  e.target.value
+                )
+              }
+              placeholder="Paste the event's Google Calendar link"
+            />
+          </label>
+
+          <div className="wide">
+            <GoogleCalendarPanel
+              date={v.meeting_date}
+              link={v.calendar_link}
+            />
+          </div>
 
           <label className="wide">
             Participants
