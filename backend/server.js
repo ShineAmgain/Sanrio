@@ -13,6 +13,8 @@ const resourcesRoutes = require('./routes/resources');
 const announcementsRoutes = require('./routes/announcements');
 const partnersRoutes = require('./routes/partners');
 const statisticsRoutes = require('./routes/statistics');
+const meetingsRoutes = require('./routes/meetings');
+
 
 const app = express();
 app.use(cors());
@@ -27,8 +29,9 @@ app.use('/api/research-areas', researchAreasRoutes);
 app.use('/api/research-groups', researchGroupsRoutes);
 app.use('/api/resources', resourcesRoutes);
 app.use('/api/announcements', announcementsRoutes);
-app.use('/api/partners', partnersRoutes);
 app.use('/api/statistics', statisticsRoutes);
+app.use('/api/partners', partnersRoutes);
+app.use('/api/meetings', meetingsRoutes);
 
 app.get('/', (req, res) => res.send('R&D Digital Hub API running'));
 
